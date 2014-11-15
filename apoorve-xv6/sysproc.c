@@ -91,5 +91,6 @@ sys_uptime(void)
 
 int sys_hello(void)
 {
+  printf("Hello World\n");
 	return 0;
 }
