@@ -17,9 +17,31 @@ void parent(void) {
 
 }
 
+void hello(){
+	
+	printf(1, "Hello World!!!\n");
+
+}
+
 void ct(void){
 
-	printf(1, "In CT: %d\n", createThread());
+	int retval = createThread();
+
+	if(retval == 0){
+	
+		hello();	
+		printf(1, "In Child\n");
+		sleep(200);
+		exit();
+
+	} else if(retval > 0) {
+
+		printf(1, "In Parent!!!\n");
+		printf(1, "My Child: %d\n", retval);
+		wait();
+		printf(1, "All my children finished their execution\n");
+	}
+
 }
 
 /*int main(void){

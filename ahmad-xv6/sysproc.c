@@ -104,18 +104,6 @@ void h(){
 
 int sys_createThread(void){
 
-int pid;
-pid = fork();
-if (pid >0 ){
-cprintf("in parent %d \n",pid);
-pid = wait();
-cprintf("child done %d \n",pid);
-}else if (pid ==0){
-cprintf("child exiting\n");
-exit();
-}
-else{
-cprintf("fork error\n");
-}
-return 5;
+	proc->ctFlag = 1;
+	return fork();
 }
