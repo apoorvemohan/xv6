@@ -23,6 +23,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int getppid(void);
+int createThread(void);
 
 // ulib.c
 int stat(char*, struct stat*);
@@ -38,3 +39,4 @@ void* malloc(uint);
 void free(void*);
 int atoi(const char*);
 void parent(void);
+void ct(void);

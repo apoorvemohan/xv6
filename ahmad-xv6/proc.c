@@ -162,8 +162,9 @@ fork(void)
   acquire(&ptable.lock);
   np->state = RUNNABLE;
   release(&ptable.lock);
-  
+
   return pid;
+
 }
 
 // Exit the current process.  Does not return.

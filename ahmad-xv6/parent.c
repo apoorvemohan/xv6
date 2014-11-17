@@ -17,6 +17,11 @@ void parent(void) {
 
 }
 
+void ct(void){
+
+	printf(1, "In CT: %d\n", createThread());
+}
+
 /*int main(void){
 
 	int retval;

@@ -95,3 +95,27 @@ int sys_getppid(void) {
 		return 0;
 	return proc->parent->pid;
 }
+
+
+void h(){
+	cprintf("Hello111");
+	exit();
+}
+
+int sys_createThread(void){
+
+int pid;
+pid = fork();
+if (pid >0 ){
+cprintf("in parent %d \n",pid);
+pid = wait();
+cprintf("child done %d \n",pid);
+}else if (pid ==0){
+cprintf("child exiting\n");
+exit();
+}
+else{
+cprintf("fork error\n");
+}
+return 5;
+}
