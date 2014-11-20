@@ -21,7 +21,7 @@ main(int argc, char **argv)
    9:	83 7d 08 00          	cmpl   $0x0,0x8(%ebp)
    d:	7f 19                	jg     28 <main+0x28>
     printf(2, "usage: kill pid...\n");
-   f:	c7 44 24 04 c3 08 00 	movl   $0x8c3,0x4(%esp)
+   f:	c7 44 24 04 54 09 00 	movl   $0x954,0x4(%esp)
   16:	00 
   17:	c7 04 24 02 00 00 00 	movl   $0x2,(%esp)
   1e:	e8 2c 04 00 00       	call   44f <printf>
@@ -670,7 +670,7 @@ printint(int fd, int xx, int base, int sgn)
  3dd:	ba 00 00 00 00       	mov    $0x0,%edx
  3e2:	f7 f1                	div    %ecx
  3e4:	89 d0                	mov    %edx,%eax
- 3e6:	0f b6 90 a4 0b 00 00 	movzbl 0xba4(%eax),%edx
+ 3e6:	0f b6 90 a8 0c 00 00 	movzbl 0xca8(%eax),%edx
  3ed:	8d 45 dc             	lea    -0x24(%ebp),%eax
  3f0:	03 45 f4             	add    -0xc(%ebp),%eax
  3f3:	88 10                	mov    %dl,(%eax)
@@ -819,7 +819,7 @@ printf(int fd, char *fmt, ...)
  541:	83 7d f4 00          	cmpl   $0x0,-0xc(%ebp)
  545:	75 27                	jne    56e <printf+0x11f>
           s = "(null)";
- 547:	c7 45 f4 d7 08 00 00 	movl   $0x8d7,-0xc(%ebp)
+ 547:	c7 45 f4 68 09 00 00 	movl   $0x968,-0xc(%ebp)
         while(*s != 0){
  54e:	eb 1e                	jmp    56e <printf+0x11f>
           putc(fd, *s);
@@ -931,7 +931,7 @@ free(void *ap)
  60d:	83 e8 08             	sub    $0x8,%eax
  610:	89 45 f8             	mov    %eax,-0x8(%ebp)
   for(p = freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr)
- 613:	a1 c0 0b 00 00       	mov    0xbc0,%eax
+ 613:	a1 c4 0c 00 00       	mov    0xcc4,%eax
  618:	89 45 fc             	mov    %eax,-0x4(%ebp)
  61b:	eb 24                	jmp    641 <free+0x3d>
     if(p >= p->s.ptr && (bp > p || bp < p->s.ptr))
@@ -1024,7 +1024,7 @@ free(void *ap)
  6cf:	89 10                	mov    %edx,(%eax)
   freep = p;
  6d1:	8b 45 fc             	mov    -0x4(%ebp),%eax
- 6d4:	a3 c0 0b 00 00       	mov    %eax,0xbc0
+ 6d4:	a3 c4 0c 00 00       	mov    %eax,0xcc4
 }
  6d9:	c9                   	leave  
  6da:	c3                   	ret    
@@ -1070,7 +1070,7 @@ morecore(uint nu)
  724:	89 04 24             	mov    %eax,(%esp)
  727:	e8 d8 fe ff ff       	call   604 <free>
   return freep;
- 72c:	a1 c0 0b 00 00       	mov    0xbc0,%eax
+ 72c:	a1 c4 0c 00 00       	mov    0xcc4,%eax
 }
  731:	c9                   	leave  
  732:	c3                   	ret    
@@ -1093,18 +1093,18 @@ malloc(uint nbytes)
  742:	83 c0 01             	add    $0x1,%eax
  745:	89 45 ec             	mov    %eax,-0x14(%ebp)
   if((prevp = freep) == 0){
- 748:	a1 c0 0b 00 00       	mov    0xbc0,%eax
+ 748:	a1 c4 0c 00 00       	mov    0xcc4,%eax
  74d:	89 45 f0             	mov    %eax,-0x10(%ebp)
  750:	83 7d f0 00          	cmpl   $0x0,-0x10(%ebp)
  754:	75 23                	jne    779 <malloc+0x46>
     base.s.ptr = freep = prevp = &base;
- 756:	c7 45 f0 b8 0b 00 00 	movl   $0xbb8,-0x10(%ebp)
+ 756:	c7 45 f0 bc 0c 00 00 	movl   $0xcbc,-0x10(%ebp)
  75d:	8b 45 f0             	mov    -0x10(%ebp),%eax
- 760:	a3 c0 0b 00 00       	mov    %eax,0xbc0
- 765:	a1 c0 0b 00 00       	mov    0xbc0,%eax
- 76a:	a3 b8 0b 00 00       	mov    %eax,0xbb8
+ 760:	a3 c4 0c 00 00       	mov    %eax,0xcc4
+ 765:	a1 c4 0c 00 00       	mov    0xcc4,%eax
+ 76a:	a3 bc 0c 00 00       	mov    %eax,0xcbc
     base.s.size = 0;
- 76f:	c7 05 bc 0b 00 00 00 	movl   $0x0,0xbbc
+ 76f:	c7 05 c0 0c 00 00 00 	movl   $0x0,0xcc0
  776:	00 00 00 
   }
   for(p = prevp->s.ptr; ; prevp = p, p = p->s.ptr){
@@ -1147,14 +1147,14 @@ malloc(uint nbytes)
       }
       freep = prevp;
  7c9:	8b 45 f0             	mov    -0x10(%ebp),%eax
- 7cc:	a3 c0 0b 00 00       	mov    %eax,0xbc0
+ 7cc:	a3 c4 0c 00 00       	mov    %eax,0xcc4
       return (void*)(p + 1);
  7d1:	8b 45 f4             	mov    -0xc(%ebp),%eax
  7d4:	83 c0 08             	add    $0x8,%eax
  7d7:	eb 38                	jmp    811 <malloc+0xde>
     }
     if(p == freep)
- 7d9:	a1 c0 0b 00 00       	mov    0xbc0,%eax
+ 7d9:	a1 c4 0c 00 00       	mov    0xcc4,%eax
  7de:	39 45 f4             	cmp    %eax,-0xc(%ebp)
  7e1:	75 1b                	jne    7fe <malloc+0xcb>
       if((p = morecore(nunits)) == 0)
@@ -1209,7 +1209,7 @@ void parent(void) {
  823:	83 7d f4 00          	cmpl   $0x0,-0xc(%ebp)
  827:	79 16                	jns    83f <parent+0x2b>
                 printf(1, "FORK FAILED!!!");
- 829:	c7 44 24 04 de 08 00 	movl   $0x8de,0x4(%esp)
+ 829:	c7 44 24 04 70 09 00 	movl   $0x970,0x4(%esp)
  830:	00 
  831:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
  838:	e8 12 fc ff ff       	call   44f <printf>
@@ -1222,7 +1222,7 @@ void parent(void) {
  84a:	8b 55 f4             	mov    -0xc(%ebp),%edx
  84d:	89 54 24 0c          	mov    %edx,0xc(%esp)
  851:	89 44 24 08          	mov    %eax,0x8(%esp)
- 855:	c7 44 24 04 ed 08 00 	movl   $0x8ed,0x4(%esp)
+ 855:	c7 44 24 04 7f 09 00 	movl   $0x97f,0x4(%esp)
  85c:	00 
  85d:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
  864:	e8 e6 fb ff ff       	call   44f <printf>
@@ -1236,7 +1236,7 @@ void parent(void) {
  877:	e8 cc fa ff ff       	call   348 <getpid>
  87c:	89 5c 24 0c          	mov    %ebx,0xc(%esp)
  880:	89 44 24 08          	mov    %eax,0x8(%esp)
- 884:	c7 44 24 04 01 09 00 	movl   $0x901,0x4(%esp)
+ 884:	c7 44 24 04 93 09 00 	movl   $0x993,0x4(%esp)
  88b:	00 
  88c:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
  893:	e8 b7 fb ff ff       	call   44f <printf>
@@ -1248,20 +1248,74 @@ void parent(void) {
  89c:	5d                   	pop    %ebp
  89d:	c3                   	ret    
 
-0000089e <ct>:
+0000089e <hello>:
 
-void ct(void){
+void hello(){
  89e:	55                   	push   %ebp
  89f:	89 e5                	mov    %esp,%ebp
  8a1:	83 ec 18             	sub    $0x18,%esp
+	
+	printf(1, "Hello World!!!\n");
+ 8a4:	c7 44 24 04 a8 09 00 	movl   $0x9a8,0x4(%esp)
+ 8ab:	00 
+ 8ac:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
+ 8b3:	e8 97 fb ff ff       	call   44f <printf>
+	printf(1, "I am Child\n");
+ 8b8:	c7 44 24 04 b8 09 00 	movl   $0x9b8,0x4(%esp)
+ 8bf:	00 
+ 8c0:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
+ 8c7:	e8 83 fb ff ff       	call   44f <printf>
+	exit();
+ 8cc:	e8 f7 f9 ff ff       	call   2c8 <exit>
 
-	printf(1, "In CT: %d\n", createThread());
- 8a4:	e8 c7 fa ff ff       	call   370 <createThread>
- 8a9:	89 44 24 08          	mov    %eax,0x8(%esp)
- 8ad:	c7 44 24 04 16 09 00 	movl   $0x916,0x4(%esp)
- 8b4:	00 
- 8b5:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
- 8bc:	e8 8e fb ff ff       	call   44f <printf>
+000008d1 <ct>:
 }
- 8c1:	c9                   	leave  
- 8c2:	c3                   	ret    
+
+void ct(void){
+ 8d1:	55                   	push   %ebp
+ 8d2:	89 e5                	mov    %esp,%ebp
+ 8d4:	83 ec 28             	sub    $0x28,%esp
+
+//		int retval = createThread((uint)hello);
+
+	uint a = (uint)malloc(4096);
+ 8d7:	c7 04 24 00 10 00 00 	movl   $0x1000,(%esp)
+ 8de:	e8 50 fe ff ff       	call   733 <malloc>
+ 8e3:	89 45 f4             	mov    %eax,-0xc(%ebp)
+	int retval = createThread(a, (uint)hello);
+ 8e6:	b8 9e 08 00 00       	mov    $0x89e,%eax
+ 8eb:	89 44 24 04          	mov    %eax,0x4(%esp)
+ 8ef:	8b 45 f4             	mov    -0xc(%ebp),%eax
+ 8f2:	89 04 24             	mov    %eax,(%esp)
+ 8f5:	e8 76 fa ff ff       	call   370 <createThread>
+ 8fa:	89 45 f0             	mov    %eax,-0x10(%ebp)
+	} else if(!retval){
+
+		hello();
+	}
+*/
+	printf(1, "In Parent!!!\n");
+ 8fd:	c7 44 24 04 c4 09 00 	movl   $0x9c4,0x4(%esp)
+ 904:	00 
+ 905:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
+ 90c:	e8 3e fb ff ff       	call   44f <printf>
+	printf(1, "My Child: %d\n", retval);
+ 911:	8b 45 f0             	mov    -0x10(%ebp),%eax
+ 914:	89 44 24 08          	mov    %eax,0x8(%esp)
+ 918:	c7 44 24 04 d2 09 00 	movl   $0x9d2,0x4(%esp)
+ 91f:	00 
+ 920:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
+ 927:	e8 23 fb ff ff       	call   44f <printf>
+	sleep(500);
+ 92c:	c7 04 24 f4 01 00 00 	movl   $0x1f4,(%esp)
+ 933:	e8 20 fa ff ff       	call   358 <sleep>
+	wait();
+ 938:	e8 93 f9 ff ff       	call   2d0 <wait>
+	printf(1, "All my children finished their execution\n");
+ 93d:	c7 44 24 04 e0 09 00 	movl   $0x9e0,0x4(%esp)
+ 944:	00 
+ 945:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
+ 94c:	e8 fe fa ff ff       	call   44f <printf>
+}
+ 951:	c9                   	leave  
+ 952:	c3                   	ret    

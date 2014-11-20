@@ -69,6 +69,8 @@ struct proc {
 
   int ctFlag;
   int type;		       // 0 - Process; 1 - Thread
+  uint wrapper;
+  char *cStack;
 };
 
 // Process memory is laid out contiguously, low addresses first:

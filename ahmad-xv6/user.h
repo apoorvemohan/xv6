@@ -23,7 +23,9 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int getppid(void);
-int createThread(void);
+int createThread(uint, uint);
+//int createThread(void);
+
 
 // ulib.c
 int stat(char*, struct stat*);

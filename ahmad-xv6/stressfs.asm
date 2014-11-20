@@ -26,7 +26,7 @@ main(int argc, char *argv[])
   char data[512];
 
   printf(1, "stressfs starting\n");
-  2c:	c7 44 24 04 13 0a 00 	movl   $0xa13,0x4(%esp)
+  2c:	c7 44 24 04 a4 0a 00 	movl   $0xaa4,0x4(%esp)
   33:	00 
   34:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
   3b:	e8 5f 05 00 00       	call   59f <printf>
@@ -66,7 +66,7 @@ main(int argc, char *argv[])
   printf(1, "write %d\n", i);
   87:	8b 84 24 2c 02 00 00 	mov    0x22c(%esp),%eax
   8e:	89 44 24 08          	mov    %eax,0x8(%esp)
-  92:	c7 44 24 04 26 0a 00 	movl   $0xa26,0x4(%esp)
+  92:	c7 44 24 04 b7 0a 00 	movl   $0xab7,0x4(%esp)
   99:	00 
   9a:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
   a1:	e8 f9 04 00 00       	call   59f <printf>
@@ -117,7 +117,7 @@ main(int argc, char *argv[])
  126:	e8 15 03 00 00       	call   440 <close>
 
   printf(1, "read\n");
- 12b:	c7 44 24 04 30 0a 00 	movl   $0xa30,0x4(%esp)
+ 12b:	c7 44 24 04 c1 0a 00 	movl   $0xac1,0x4(%esp)
  132:	00 
  133:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
  13a:	e8 60 04 00 00       	call   59f <printf>
@@ -776,7 +776,7 @@ printint(int fd, int xx, int base, int sgn)
  52d:	ba 00 00 00 00       	mov    $0x0,%edx
  532:	f7 f1                	div    %ecx
  534:	89 d0                	mov    %edx,%eax
- 536:	0f b6 90 00 0d 00 00 	movzbl 0xd00(%eax),%edx
+ 536:	0f b6 90 08 0e 00 00 	movzbl 0xe08(%eax),%edx
  53d:	8d 45 dc             	lea    -0x24(%ebp),%eax
  540:	03 45 f4             	add    -0xc(%ebp),%eax
  543:	88 10                	mov    %dl,(%eax)
@@ -925,7 +925,7 @@ printf(int fd, char *fmt, ...)
  691:	83 7d f4 00          	cmpl   $0x0,-0xc(%ebp)
  695:	75 27                	jne    6be <printf+0x11f>
           s = "(null)";
- 697:	c7 45 f4 36 0a 00 00 	movl   $0xa36,-0xc(%ebp)
+ 697:	c7 45 f4 c7 0a 00 00 	movl   $0xac7,-0xc(%ebp)
         while(*s != 0){
  69e:	eb 1e                	jmp    6be <printf+0x11f>
           putc(fd, *s);
@@ -1037,7 +1037,7 @@ free(void *ap)
  75d:	83 e8 08             	sub    $0x8,%eax
  760:	89 45 f8             	mov    %eax,-0x8(%ebp)
   for(p = freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr)
- 763:	a1 1c 0d 00 00       	mov    0xd1c,%eax
+ 763:	a1 24 0e 00 00       	mov    0xe24,%eax
  768:	89 45 fc             	mov    %eax,-0x4(%ebp)
  76b:	eb 24                	jmp    791 <free+0x3d>
     if(p >= p->s.ptr && (bp > p || bp < p->s.ptr))
@@ -1130,7 +1130,7 @@ free(void *ap)
  81f:	89 10                	mov    %edx,(%eax)
   freep = p;
  821:	8b 45 fc             	mov    -0x4(%ebp),%eax
- 824:	a3 1c 0d 00 00       	mov    %eax,0xd1c
+ 824:	a3 24 0e 00 00       	mov    %eax,0xe24
 }
  829:	c9                   	leave  
  82a:	c3                   	ret    
@@ -1176,7 +1176,7 @@ morecore(uint nu)
  874:	89 04 24             	mov    %eax,(%esp)
  877:	e8 d8 fe ff ff       	call   754 <free>
   return freep;
- 87c:	a1 1c 0d 00 00       	mov    0xd1c,%eax
+ 87c:	a1 24 0e 00 00       	mov    0xe24,%eax
 }
  881:	c9                   	leave  
  882:	c3                   	ret    
@@ -1199,18 +1199,18 @@ malloc(uint nbytes)
  892:	83 c0 01             	add    $0x1,%eax
  895:	89 45 ec             	mov    %eax,-0x14(%ebp)
   if((prevp = freep) == 0){
- 898:	a1 1c 0d 00 00       	mov    0xd1c,%eax
+ 898:	a1 24 0e 00 00       	mov    0xe24,%eax
  89d:	89 45 f0             	mov    %eax,-0x10(%ebp)
  8a0:	83 7d f0 00          	cmpl   $0x0,-0x10(%ebp)
  8a4:	75 23                	jne    8c9 <malloc+0x46>
     base.s.ptr = freep = prevp = &base;
- 8a6:	c7 45 f0 14 0d 00 00 	movl   $0xd14,-0x10(%ebp)
+ 8a6:	c7 45 f0 1c 0e 00 00 	movl   $0xe1c,-0x10(%ebp)
  8ad:	8b 45 f0             	mov    -0x10(%ebp),%eax
- 8b0:	a3 1c 0d 00 00       	mov    %eax,0xd1c
- 8b5:	a1 1c 0d 00 00       	mov    0xd1c,%eax
- 8ba:	a3 14 0d 00 00       	mov    %eax,0xd14
+ 8b0:	a3 24 0e 00 00       	mov    %eax,0xe24
+ 8b5:	a1 24 0e 00 00       	mov    0xe24,%eax
+ 8ba:	a3 1c 0e 00 00       	mov    %eax,0xe1c
     base.s.size = 0;
- 8bf:	c7 05 18 0d 00 00 00 	movl   $0x0,0xd18
+ 8bf:	c7 05 20 0e 00 00 00 	movl   $0x0,0xe20
  8c6:	00 00 00 
   }
   for(p = prevp->s.ptr; ; prevp = p, p = p->s.ptr){
@@ -1253,14 +1253,14 @@ malloc(uint nbytes)
       }
       freep = prevp;
  919:	8b 45 f0             	mov    -0x10(%ebp),%eax
- 91c:	a3 1c 0d 00 00       	mov    %eax,0xd1c
+ 91c:	a3 24 0e 00 00       	mov    %eax,0xe24
       return (void*)(p + 1);
  921:	8b 45 f4             	mov    -0xc(%ebp),%eax
  924:	83 c0 08             	add    $0x8,%eax
  927:	eb 38                	jmp    961 <malloc+0xde>
     }
     if(p == freep)
- 929:	a1 1c 0d 00 00       	mov    0xd1c,%eax
+ 929:	a1 24 0e 00 00       	mov    0xe24,%eax
  92e:	39 45 f4             	cmp    %eax,-0xc(%ebp)
  931:	75 1b                	jne    94e <malloc+0xcb>
       if((p = morecore(nunits)) == 0)
@@ -1315,7 +1315,7 @@ void parent(void) {
  973:	83 7d f4 00          	cmpl   $0x0,-0xc(%ebp)
  977:	79 16                	jns    98f <parent+0x2b>
                 printf(1, "FORK FAILED!!!");
- 979:	c7 44 24 04 3d 0a 00 	movl   $0xa3d,0x4(%esp)
+ 979:	c7 44 24 04 d0 0a 00 	movl   $0xad0,0x4(%esp)
  980:	00 
  981:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
  988:	e8 12 fc ff ff       	call   59f <printf>
@@ -1328,7 +1328,7 @@ void parent(void) {
  99a:	8b 55 f4             	mov    -0xc(%ebp),%edx
  99d:	89 54 24 0c          	mov    %edx,0xc(%esp)
  9a1:	89 44 24 08          	mov    %eax,0x8(%esp)
- 9a5:	c7 44 24 04 4c 0a 00 	movl   $0xa4c,0x4(%esp)
+ 9a5:	c7 44 24 04 df 0a 00 	movl   $0xadf,0x4(%esp)
  9ac:	00 
  9ad:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
  9b4:	e8 e6 fb ff ff       	call   59f <printf>
@@ -1342,7 +1342,7 @@ void parent(void) {
  9c7:	e8 cc fa ff ff       	call   498 <getpid>
  9cc:	89 5c 24 0c          	mov    %ebx,0xc(%esp)
  9d0:	89 44 24 08          	mov    %eax,0x8(%esp)
- 9d4:	c7 44 24 04 60 0a 00 	movl   $0xa60,0x4(%esp)
+ 9d4:	c7 44 24 04 f3 0a 00 	movl   $0xaf3,0x4(%esp)
  9db:	00 
  9dc:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
  9e3:	e8 b7 fb ff ff       	call   59f <printf>
@@ -1354,20 +1354,74 @@ void parent(void) {
  9ec:	5d                   	pop    %ebp
  9ed:	c3                   	ret    
 
-000009ee <ct>:
+000009ee <hello>:
 
-void ct(void){
+void hello(){
  9ee:	55                   	push   %ebp
  9ef:	89 e5                	mov    %esp,%ebp
  9f1:	83 ec 18             	sub    $0x18,%esp
+	
+	printf(1, "Hello World!!!\n");
+ 9f4:	c7 44 24 04 08 0b 00 	movl   $0xb08,0x4(%esp)
+ 9fb:	00 
+ 9fc:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
+ a03:	e8 97 fb ff ff       	call   59f <printf>
+	printf(1, "I am Child\n");
+ a08:	c7 44 24 04 18 0b 00 	movl   $0xb18,0x4(%esp)
+ a0f:	00 
+ a10:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
+ a17:	e8 83 fb ff ff       	call   59f <printf>
+	exit();
+ a1c:	e8 f7 f9 ff ff       	call   418 <exit>
 
-	printf(1, "In CT: %d\n", createThread());
- 9f4:	e8 c7 fa ff ff       	call   4c0 <createThread>
- 9f9:	89 44 24 08          	mov    %eax,0x8(%esp)
- 9fd:	c7 44 24 04 75 0a 00 	movl   $0xa75,0x4(%esp)
- a04:	00 
- a05:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
- a0c:	e8 8e fb ff ff       	call   59f <printf>
+00000a21 <ct>:
 }
- a11:	c9                   	leave  
- a12:	c3                   	ret    
+
+void ct(void){
+ a21:	55                   	push   %ebp
+ a22:	89 e5                	mov    %esp,%ebp
+ a24:	83 ec 28             	sub    $0x28,%esp
+
+//		int retval = createThread((uint)hello);
+
+	uint a = (uint)malloc(4096);
+ a27:	c7 04 24 00 10 00 00 	movl   $0x1000,(%esp)
+ a2e:	e8 50 fe ff ff       	call   883 <malloc>
+ a33:	89 45 f4             	mov    %eax,-0xc(%ebp)
+	int retval = createThread(a, (uint)hello);
+ a36:	b8 ee 09 00 00       	mov    $0x9ee,%eax
+ a3b:	89 44 24 04          	mov    %eax,0x4(%esp)
+ a3f:	8b 45 f4             	mov    -0xc(%ebp),%eax
+ a42:	89 04 24             	mov    %eax,(%esp)
+ a45:	e8 76 fa ff ff       	call   4c0 <createThread>
+ a4a:	89 45 f0             	mov    %eax,-0x10(%ebp)
+	} else if(!retval){
+
+		hello();
+	}
+*/
+	printf(1, "In Parent!!!\n");
+ a4d:	c7 44 24 04 24 0b 00 	movl   $0xb24,0x4(%esp)
+ a54:	00 
+ a55:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
+ a5c:	e8 3e fb ff ff       	call   59f <printf>
+	printf(1, "My Child: %d\n", retval);
+ a61:	8b 45 f0             	mov    -0x10(%ebp),%eax
+ a64:	89 44 24 08          	mov    %eax,0x8(%esp)
+ a68:	c7 44 24 04 32 0b 00 	movl   $0xb32,0x4(%esp)
+ a6f:	00 
+ a70:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
+ a77:	e8 23 fb ff ff       	call   59f <printf>
+	sleep(500);
+ a7c:	c7 04 24 f4 01 00 00 	movl   $0x1f4,(%esp)
+ a83:	e8 20 fa ff ff       	call   4a8 <sleep>
+	wait();
+ a88:	e8 93 f9 ff ff       	call   420 <wait>
+	printf(1, "All my children finished their execution\n");
+ a8d:	c7 44 24 04 40 0b 00 	movl   $0xb40,0x4(%esp)
+ a94:	00 
+ a95:	c7 04 24 01 00 00 00 	movl   $0x1,(%esp)
+ a9c:	e8 fe fa ff ff       	call   59f <printf>
+}
+ aa1:	c9                   	leave  
+ aa2:	c3                   	ret    

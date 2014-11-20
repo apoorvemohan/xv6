@@ -20,28 +20,35 @@ void parent(void) {
 void hello(){
 	
 	printf(1, "Hello World!!!\n");
-
+	printf(1, "I am Child\n");
+	exit();
 }
 
 void ct(void){
 
-	int retval = createThread();
+//		int retval = createThread((uint)hello);
 
-	if(retval == 0){
-	
-		hello();	
-		printf(1, "In Child\n");
-		sleep(200);
-		exit();
+	uint a = (uint)malloc(4096);
+	int retval = createThread(a, (uint)hello);
 
-	} else if(retval > 0) {
+/*	if(retval > 0) {
 
 		printf(1, "In Parent!!!\n");
-		printf(1, "My Child: %d\n", retval);
-		wait();
-		printf(1, "All my children finished their execution\n");
-	}
+                printf(1, "My Child: %d\n", retval);
+                wait();
+                printf(1, "All my children finished their execution\n");
 
+
+	} else if(!retval){
+
+		hello();
+	}
+*/
+	printf(1, "In Parent!!!\n");
+	printf(1, "My Child: %d\n", retval);
+	sleep(500);
+	wait();
+	printf(1, "All my children finished their execution\n");
 }
 
 /*int main(void){

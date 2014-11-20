@@ -97,12 +97,17 @@ int sys_getppid(void) {
 }
 
 
-void h(){
-	cprintf("Hello111");
-	exit();
-}
 
 int sys_createThread(void){
+
+	int addr = 0;
+	int addr1 = 0;
+
+	argint(0, &addr);
+	argint(1, &addr1);
+
+	proc->cStack = (char*)addr;
+	proc->wrapper = (uint)addr1;
 
 	proc->ctFlag = 1;
 	return fork();

@@ -135,13 +135,14 @@ fork(void)
   if((np = allocproc()) == 0)
     return -1;
 
-//  if(proc->ctFlag){
+  if(proc->ctFlag){
 
-//    proc->ctFlag = 0;
-//    np->pgdir = proc->pgdir;
-//    np->type = 1;
+    np->pgdir = proc->pgdir;
+    //np->kstack = proc->cStack;
+    np->type = 1;
 
-//  } else {
+
+} else {
 
     // Copy process state from p.
     if((np->pgdir = copyuvm(proc->pgdir, proc->sz)) == 0){
@@ -151,15 +152,29 @@ fork(void)
       return -1;
     }
 
-//    np->type = 0;
-//  }
+    np->type = 0;
+  }
 
   np->sz = proc->sz;
   np->parent = proc;
   *np->tf = *proc->tf;
 
+
+if(proc->ctFlag){
+
+  np->tf->eip = proc->wrapper;
+  uint *sp = (uint*)proc->cStack;
+  
+  *(--sp) = 0;
+
+  np->tf->esp = (uint)sp;
+
+// set arguments in stack for the called function
+}
+
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
+
 
   for(i = 0; i < NOFILE; i++)
     if(proc->ofile[i])
@@ -245,7 +260,12 @@ wait(void)
         pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
-        freevm(p->pgdir);
+
+	if(!p->type)
+           freevm(p->pgdir);
+	else
+		p->pgdir = 0;
+
         p->state = UNUSED;
         p->pid = 0;
         p->parent = 0;
