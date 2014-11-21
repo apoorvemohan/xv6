@@ -4,23 +4,26 @@
 
 #define THREADSTACKSIZE 4096
 
-void *wrapper(qthread_func_ptr_t func, void *arg) {
+void wrapper(qthread_func_ptr_t func, void *arg) {
+
+//	printf(1, "hello\n");
+	
     func(arg);
     exit();
-
 }
 
 int qthread_create(qthread_t *thread, qthread_func_ptr_t my_func, void *arg) {
 
-//    int SP = (int)malloc(THREADSTACKSIZE);
+    int SP = (int)malloc(THREADSTACKSIZE);
 //    printf(1, "sp: %d wrapper: %d myfunc: %d arg: %d ", (int)SP, (int)wrapper, (int)my_func, (int)arg);
-//    int t_id = kthread_create(SP,(int)wrapper,(int)my_func,(int)arg);
-//    (*thread)->tid = t_id;
-//    return t_id;
+	printf(1, "%d\n", *(int*)arg);
+    int t_id = kthread_create(SP,(int)wrapper,(int)my_func,*(int*)arg);
+    (*thread)->tid = t_id;
+    return t_id;
 
-	printf(1, "Myfunc: %d Arg: %d\n", (int)my_func, (int)arg);
-	my_func(arg);
-	return 0;
+//	printf(1, "Myfunc: %d Arg: %d\n", (int)my_func, (int)arg);
+//	my_func(arg);
+//	return 0;
 }
 
 int qthread_join(qthread_t thread, void **retval){

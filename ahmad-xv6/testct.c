@@ -4,16 +4,10 @@
 #include "qthread.h"
 
 
-void *f1(void *arg) { 
+void *f1(void *arg);
 
-	printf(1, "My PID: %d\n", *(int*)arg);
-	return arg; 
-}
+void *f2(void *arg);
 
-void *f2(void *arg){
-	printf(1,"i am thread 5\n");
-	return arg;
-}
 void test1(void)
 {
     qthread_t t[5];
@@ -23,12 +17,15 @@ void test1(void)
         qthread_create(&t[i], f1, (void*)&i);
     }
 	printf(1,"f2: %d\n", f2);
-	qthread_create(&t[4] ,f2, (void*)&i+1);
+	++i;
+	qthread_create(&t[4] ,f2, (void*)&i);
 
-//    for (i = 0; i < 5; i++) {
+// int j;
+    for (i = 0; i < 5; i++) {
+	wait();
 //        qthread_join(t[i], (void**)&j);
 //        assert(i == j);
-//    }
+    }
 
 
     printf(1, "test 1 OK\n");
@@ -44,3 +41,15 @@ test1();
 exit();
 
 }
+
+void *f1(void *arg) {
+
+        printf(1, "My PID: %d\n", (int)arg);
+        return arg;
+}
+
+void *f2(void *arg){
+        printf(1,"i am thread %d\n", (int)arg);
+        return arg;
+}
+
