@@ -10,7 +10,9 @@
 #define THREADSTACKSIZE 4096
 
 void *wrapper(qthread_func_ptr_t func, void *arg) {
-    return func(arg);
+    func(arg);
+    exit();
+
 }
 
 int qthread_create(qthread_t *thread, qthread_func_ptr_t my_func, void *arg) {
