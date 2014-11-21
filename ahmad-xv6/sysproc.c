@@ -9,7 +9,8 @@
 int
 sys_fork(void)
 {
-  return fork();
+  proc->ctflag = 0;
+  return fork((char*)0, 0, 0, 0);
 }
 
 int
@@ -22,7 +23,7 @@ sys_exit(void)
 int
 sys_wait(void)
 {
-  return wait();
+  return wait(0);
 }
 
 int
@@ -96,19 +97,26 @@ int sys_getppid(void) {
 	return proc->parent->pid;
 }
 
+int sys_kthread_create(void){
 
+	int ustack = 0;
+	int wrapper = 0;
+	int arg1 = 0;
+	int arg2 = 0;
 
-int sys_createThread(void){
+	argint(0, &ustack);
+	argint(1, &wrapper);
+	argint(2, &arg1);
+	argint(3, &arg2);
 
-	int addr = 0;
-	int addr1 = 0;
+	proc->ctflag = 1;
+	return fork((char*)ustack, (uint)wrapper, (uint)arg1, (uint)arg2);
+}
 
-	argint(0, &addr);
-	argint(1, &addr1);
+int sys_kthread_join(void){
 
-	proc->cStack = (char*)addr;
-	proc->wrapper = (uint)addr1;
+	int tid = 0;
+	argint(0, &tid);
+	return wait(tid);
 
-	proc->ctFlag = 1;
-	return fork();
 }

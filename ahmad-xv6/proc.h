@@ -51,6 +51,9 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
+
+
+
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
@@ -67,10 +70,13 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
 
-  int ctFlag;
+
+//Thread specific
+  int ctflag;		       // 0 - fork creates a process; 1 - fork creates a thread
   int type;		       // 0 - Process; 1 - Thread
-  uint wrapper;
-  char *cStack;
+  uint wrapper;		       // Function to execute in thread
+  char *ustack;		       // Thread User Stack
+  uint tcount;		       // Child Thread count
 };
 
 // Process memory is laid out contiguously, low addresses first:

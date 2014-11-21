@@ -126,7 +126,7 @@ growproc(int n)
 // Sets up stack to return as if from system call.
 // Caller must set state of returned proc to RUNNABLE.
 int
-fork(void)
+fork(char *ustack, uint wrapperaddr, uint arg1, uint arg2)
 {
   int i, pid;
   struct proc *np;
@@ -135,7 +135,7 @@ fork(void)
   if((np = allocproc()) == 0)
     return -1;
 
-  if(proc->ctFlag){
+  if(proc->ctflag){
 
     np->pgdir = proc->pgdir;
     //np->kstack = proc->cStack;
@@ -156,25 +156,30 @@ fork(void)
   }
 
   np->sz = proc->sz;
-  np->parent = proc;
+
+  if(proc->type && proc->ctflag)
+    np->parent = proc->parent;
+  else
+    np->parent = proc;
+
   *np->tf = *proc->tf;
 
+if(proc->ctflag){
 
-if(proc->ctFlag){
+  np->tf->eip = wrapperaddr;
 
-  np->tf->eip = proc->wrapper;
-  uint *sp = (uint*)proc->cStack;
-  
+  uint *sp = (uint*)proc->ustack = ustack;
+
+  *(--sp) = arg2;
+  *(--sp) = arg1;
   *(--sp) = 0;
 
   np->tf->esp = (uint)sp;
-
-// set arguments in stack for the called function
+  proc->tcount+=1;
 }
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
-
 
   for(i = 0; i < NOFILE; i++)
     if(proc->ofile[i])
@@ -242,7 +247,7 @@ exit(void)
 // Wait for a child process to exit and return its pid.
 // Return -1 if this process has no children.
 int
-wait(void)
+wait(uint tid)
 {
   struct proc *p;
   int havekids, pid;
@@ -254,17 +259,25 @@ wait(void)
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->parent != proc)
         continue;
+      
+      if(tid)
+	if(tid != p->pid)
+	  continue;
+     
       havekids = 1;
+ 
       if(p->state == ZOMBIE){
         // Found one.
         pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
 
-	if(!p->type)
+	if(!p->type && (p->tcount == 0))
            freevm(p->pgdir);
-	else
-		p->pgdir = 0;
+	else {
+	   p->pgdir = 0;
+	   p->parent->tcount-=1;
+	}
 
         p->state = UNUSED;
         p->pid = 0;
