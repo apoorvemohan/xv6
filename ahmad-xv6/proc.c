@@ -168,7 +168,9 @@ if(proc->ctflag){
 
   np->tf->eip = wrapperaddr;
 
-  uint *sp = (uint*)proc->ustack = ustack;
+  proc->ustack = ustack;
+
+  uint *sp = (uint*)proc->ustack;
 
   *(--sp) = arg2;
   *(--sp) = arg1;

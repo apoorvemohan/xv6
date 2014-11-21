@@ -1,7 +1,6 @@
-#ifndef __QTHREAD_H__
-#define __QTHREAD_H__
+//#ifndef __QTHREAD_H__
+//#define __QTHREAD_H__
 
-#include <sys/types.h>
 
 struct qthread;
 struct qthread_mutex;
@@ -51,4 +50,4 @@ struct qthreadList {
     struct qthreadList *next;
 };
 
-#endif /* __QTHREAD_H__ */
+//#endif /* __QTHREAD_H__ */

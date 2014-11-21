@@ -1,9 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <assert.h>
-#include <sys/time.h>
-#include <fcntl.h>
+#include "types.h"
 #include "qthread.h"
 #include "user.h"
 
@@ -19,13 +14,13 @@ int qthread_create(qthread_t *thread, qthread_func_ptr_t my_func, void *arg) {
 
     int SP = (int)malloc(THREADSTACKSIZE);
     int t_id = kthread_create(SP,(int)wrapper,(int)my_func,(int)arg);
-    thread->tid = t_id;
+    (*thread)->tid = t_id;
     return t_id;
 }
 
 int qthread_join(qthread_t thread, void **retval){
 
-    int val = kthread_join((thread->tid, retval);
+    int val = kthread_join(thread->tid, (int)retval);
     return val;
 }
 /*

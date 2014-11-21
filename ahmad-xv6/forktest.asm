@@ -686,14 +686,14 @@ SYSCALL(uptime)
  415:	cd 40                	int    $0x40
  417:	c3                   	ret    
 
-00000418 <getppid>:
-SYSCALL(getppid)
- 418:	b8 16 00 00 00       	mov    $0x16,%eax
+00000418 <kthread_create>:
+SYSCALL(kthread_create)
+ 418:	b8 17 00 00 00       	mov    $0x17,%eax
  41d:	cd 40                	int    $0x40
  41f:	c3                   	ret    
 
-00000420 <createThread>:
-SYSCALL(createThread)
- 420:	b8 17 00 00 00       	mov    $0x17,%eax
+00000420 <kthread_join>:
+SYSCALL(kthread_join)
+ 420:	b8 16 00 00 00       	mov    $0x16,%eax
  425:	cd 40                	int    $0x40
  427:	c3                   	ret    
