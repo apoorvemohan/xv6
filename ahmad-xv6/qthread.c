@@ -13,7 +13,7 @@ void wrapper(qthread_func_ptr_t func, void *arg) {
 int qthread_create(qthread_t *thread, qthread_func_ptr_t my_func, void *arg) {
 
     *thread = (qthread_t)malloc(sizeof(struct qthread));
-    int t_id = kthread_create((int)malloc(THREADSTACKSIZE), (int)wrapper, (int)my_func, *(int*)arg);
+    int t_id = kthread_create((int)((char*)malloc(THREADSTACKSIZE) + THREADSTACKSIZE), (int)wrapper, (int)my_func, *(int*)arg);
     (*thread)->tid = t_id;
     return t_id;
 }
