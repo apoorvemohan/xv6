@@ -3,23 +3,47 @@
 #include "user.h"
 #include "qthread.h"
 
-#define MAX_THREADS 50
+#define MAX_THREADS 10
 
-#ifndef NULL
+//#ifndef NULL
 //# warning "NULL not defined!"
-# define NULL (void*)0
-#else
+//# define NULL (void*)0
+//#else
 //# warning "NULL defined!"
-#endif
+//#endif
 
 
 void *f1(void *arg);
 
-#define THREADSTACKSIZE 10
+#define THREADSTACKSIZE 4096
 
-extern void wrapper(qthread_func_ptr_t func, void *arg);
+void test1(void){
 
-void test1(void)
+	qthread_t t[MAX_THREADS];
+
+	int i,j;
+
+	for(i = 0; i < MAX_THREADS; i++){
+        	int tid = qthread_create(&t[i], f1, (void*)&i);
+        	printf(1, "[%d : %d]\n", tid, t[i]->tid);
+	}
+
+	for (i = 0; i < MAX_THREADS; i++){
+        	printf(1, "%d\n", t[i]->tid);
+    	}
+
+  	for (i = 0; i < MAX_THREADS; i++) {
+        	qthread_join(t[i], (void**)&j);
+		//        assert(i == j);
+    	}
+
+
+}
+
+
+//extern void wrapper(qthread_func_ptr_t func, void *arg);
+
+/*void test1(void)
 {
     //qthread_t t[MAX_THREADS] = {0};
     struct qthread t[MAX_THREADS] = {};
@@ -59,7 +83,7 @@ void test1(void)
 
     printf(1, "test 1 OK\n");
 }
-
+*/
 
 int main(void){
 

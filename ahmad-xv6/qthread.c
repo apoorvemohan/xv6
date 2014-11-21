@@ -12,19 +12,9 @@ void wrapper(qthread_func_ptr_t func, void *arg) {
 
 int qthread_create(qthread_t *thread, qthread_func_ptr_t my_func, void *arg) {
 
-#ifdef DEBUG2
-    void *p = malloc(sizeof(struct qthread));
-    *thread = (qthread_t)p;
-#else
     *thread = (qthread_t)malloc(sizeof(struct qthread));
-#endif
     int t_id = kthread_create((int)malloc(THREADSTACKSIZE), (int)wrapper, (int)my_func, *(int*)arg);
     (*thread)->tid = t_id;
-#ifdef DEBUG2
-    printf(1, "[%s:%d]: p: %p, TID: %p\n", __FUNCTION__, __LINE__,  p, (*thread), (*thread)->tid);
-#else
-    //printf(1, "[%s:%d]: %p: TID: %d\n", __FUNCTION__, __LINE__, (*thread), (*thread)->tid);
-#endif
     return t_id;
 }
 
