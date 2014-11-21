@@ -1,7 +1,3 @@
-//#ifndef __QTHREAD_H__
-//#define __QTHREAD_H__
-
-
 struct qthread;
 struct qthread_mutex;
 struct qthread_cond;
@@ -34,6 +30,7 @@ int qthread_cond_broadcast(qthread_cond_t *cond);
 
 struct qthread {
     int tid;
+    //void *retval;
 };
 
 struct qthread_mutex {
@@ -50,4 +47,3 @@ struct qthreadList {
     struct qthreadList *next;
 };
 
-//#endif /* __QTHREAD_H__ */
