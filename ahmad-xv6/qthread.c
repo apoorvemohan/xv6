@@ -10,15 +10,15 @@
 #define THREADSTACKSIZE 4096
 
 void *wrapper(qthread_func_ptr_t func, void *arg) {
-    func(arg);
+    return func(arg);
 }
 
 int qthread_create(qthread_t *thread, qthread_func_ptr_t my_func, void *arg) {
 
     int SP = (int)malloc(THREADSTACKSIZE);
     int t_id = kthread_create(SP,(int)wrapper,(int)my_func,(int)arg);
-    (*thread)->tid = t_id;
-    return 0;
+    thread->tid = t_id;
+    return t_id;
 }
 
 int qthread_join(qthread_t thread, void **retval){
