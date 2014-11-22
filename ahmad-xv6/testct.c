@@ -24,7 +24,7 @@ int mvar = 0;
 void test1(void){
 
 	qthread_t t[MAX_THREADS];
-    qthread_mutex_init(&m, NULL);
+    qthread_mutex_init(&m);
 
 	int i,j;
 
