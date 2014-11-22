@@ -137,7 +137,7 @@ int sys_kthread_init(void){
 	return flag;
 }
 
-int sys_thread_destroy(void){
+int sys_kthread_destroy(void){
 
 	int mutex;
 	argint(0, &mutex);
@@ -151,4 +151,32 @@ int sys_thread_destroy(void){
 	return 0;		
 }
 
+int sys_kthread_lock(void){
+
+	int mutex = 0;
+	argint(0, &mutex);
+
+	if((mutex > 0) && (proc->mutexlist[mutex-1].id == mutex)){
+		while(proc->mutexlist[mutex-1].state);
+		proc->mutexlist[mutex-1].state = 1;
+		proc->mutexlist[mutex-1].lockingthread = mutex;	
+		return mutex;
+	}
+	
+	return -1;
+}
+
+int sys_kthread_unlock(void){
+
+	int mutex = 0;
+	argint(0, &mutex);
+
+	if((mutex > 0) && (proc->mutexlist[mutex-1].id == mutex)){
+		proc->mutexlist[mutex-1].state = 0;
+		proc->mutexlist[mutex-1].lockingthread = 0;
+		return mutex;
+	}
+
+	return -1;
+}
 
