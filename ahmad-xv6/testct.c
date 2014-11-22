@@ -43,7 +43,7 @@ void test1(void){
 		//        assert(i == j);
     	}
     
-   printf("%d\n",mvar);
+   printf(1,"%d\n",mvar);
 }
 
 
