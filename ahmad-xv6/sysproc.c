@@ -121,7 +121,7 @@ int sys_kthread_join(void){
 
 }
 
-int sys_kthread_init(void){
+int sys_kthread_mutex_init(void){
 
 	int i,  flag = -1;
 
@@ -140,7 +140,7 @@ int sys_kthread_init(void){
 	return flag;
 }
 
-int sys_kthread_destroy(void){
+int sys_kthread_mutex_destroy(void){
 
 	int mutex;
 	argint(0, &mutex);
@@ -154,7 +154,7 @@ int sys_kthread_destroy(void){
 	return 0;		
 }
 
-int sys_kthread_lock(void){
+int sys_kthread_mutex_lock(void){
 
 	int mutex = 0;
 	argint(0, &mutex);
@@ -169,7 +169,7 @@ int sys_kthread_lock(void){
 	return -1;
 }
 
-int sys_kthread_unlock(void){
+int sys_kthread_mutex_unlock(void){
 
 	int mutex = 0;
 	argint(0, &mutex);
