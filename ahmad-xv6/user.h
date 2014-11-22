@@ -28,6 +28,11 @@ int kthread_mutex_init(void);
 int kthread_mutex_destroy(int);
 int kthread_mutex_lock(int);
 int kthread_mutex_unlock(int);
+int kthread_cond_init(void);
+int kthread_cond_destroy(int);
+int kthread_cond_wait(int,int);
+int kthread_cond_signal(int);
+int kthread_cond_broadcast(int);
 
 // ulib.c
 int stat(char*, struct stat*);

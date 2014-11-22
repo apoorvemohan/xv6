@@ -183,3 +183,29 @@ int sys_kthread_mutex_unlock(void){
 	return -1;
 }
 
+
+int sys_kthread_cond_init(void){
+
+	return 0;
+}
+
+int sys_kthread_cond_destroy(void){
+
+	return 0;	
+}
+
+int sys_kthread_cond_wait(void){
+
+	return 0;
+}
+
+int sys_kthread_cond_signal(void){
+
+	return 0;
+}
+
+int sys_kthread_cond_broadcast(void){
+
+	return 0;
+}
+

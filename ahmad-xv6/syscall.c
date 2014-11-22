@@ -104,6 +104,11 @@ extern int sys_kthread_mutex_init(void);
 extern int sys_kthread_mutex_destroy(void);
 extern int sys_kthread_mutex_lock(void);
 extern int sys_kthread_mutex_unlock(void);
+extern int sys_kthread_cond_init(void);
+extern int sys_kthread_cond_destroy(void);
+extern int sys_kthread_cond_wait(void);
+extern int sys_kthread_cond_signal(void);
+extern int sys_kthread_cond_broadcast(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -133,6 +138,11 @@ static int (*syscalls[])(void) = {
 [SYS_kthread_mutex_destroy] sys_kthread_mutex_destroy,
 [SYS_kthread_mutex_lock] sys_kthread_mutex_lock,
 [SYS_kthread_mutex_unlock] sys_kthread_mutex_unlock,
+[SYS_kthread_cond_init] sys_kthread_cond_init,
+[SYS_kthread_cond_destroy] sys_kthread_cond_destroy,
+[SYS_kthread_cond_wait] sys_kthread_cond_wait,
+[SYS_kthread_cond_signal] sys_kthread_cond_signal,
+[SYS_kthread_cond_broadcast] sys_kthread_cond_broadcast,
 };
 
 void

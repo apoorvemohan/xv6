@@ -26,3 +26,8 @@
 #define SYS_kthread_mutex_destroy 25
 #define SYS_kthread_mutex_lock 26
 #define SYS_kthread_mutex_unlock 27
+#define SYS_kthread_cond_init 28
+#define SYS_kthread_cond_destroy 29
+#define SYS_kthread_cond_wait 30
+#define SYS_kthread_cond_signal 31
+#define SYS_kthread_cond_broadcast 32

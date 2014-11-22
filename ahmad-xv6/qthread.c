@@ -55,27 +55,32 @@ int qthread_mutex_unlock(qthread_mutex_t *mutex){
     }
     return 0;
 }
-/*
+
 int qthread_cond_init(qthread_cond_t *cond){
 
+	return 0;
 }
 
 int qthread_cond_destroy(qthread_cond_t *cond){
     
+    return 0;
 }
 
 int qthread_cond_signal(qthread_cond_t *cond){
     
+    return 0;
 }
 
 int qthread_cond_broadcast(qthread_cond_t *cond){
+	return 0;
     
 }
 
 int qthread_cond_wait(qthread_cond_t *cond, qthread_mutex_t *mutex){
+	return 0;
     
 }
-
+/*
 int qthread_exit(){
 
 }
