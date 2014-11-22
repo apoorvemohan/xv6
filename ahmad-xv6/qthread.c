@@ -24,24 +24,29 @@ int qthread_join(qthread_t thread, void **retval){
     return val;
 }
 
-
-/*
 int qthread_mutex_init(qthread_mutex_t *mutex){
-
+	*mutex = kthread_mutex_init();
+	if (*mutex < 0){
+		return -1;
+	}
+	return 0;
 }
 
 int qthread_mutex_destroy(qthread_mutex_t *mutex){
-    
+    int val = kthread_mutex_destroy((int)mutex);
+    return val;
 }
 
 int qthread_mutex_lock(qthread_mutex_t *mutex){
-    
+    int val = kthread_mutex_lock((int)mutex);
+    return val;
 }
 
 int qthread_mutex_unlock(qthread_mutex_t *mutex){
-    
+    int val = kthread_mutex_unlock((int)mutex);
+    return val;
 }
-
+/*
 int qthread_cond_init(qthread_cond_t *cond){
 
 }

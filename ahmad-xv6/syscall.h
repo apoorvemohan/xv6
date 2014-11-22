@@ -22,3 +22,7 @@
 #define SYS_close  21
 #define SYS_kthread_join 22
 #define SYS_kthread_create 23
+#define SYS_kthread_mutex_init 24
+#define SYS_kthread_mutex_destroy 25
+#define SYS_kthread_mutex_lock 26
+#define SYS_kthread_mutex_unlock 27

@@ -8,7 +8,7 @@ struct qthreadList;
 typedef void *(*qthread_func_ptr_t)(void*);  
 
 typedef struct qthread *qthread_t;
-typedef struct qthread_mutex qthread_mutex_t;
+typedef int qthread_mutex_t;
 typedef struct qthread_cond qthread_cond_t;
 
 int  qthread_create(qthread_t *thread, qthread_func_ptr_t start, void *arg);
@@ -31,10 +31,6 @@ int qthread_cond_broadcast(qthread_cond_t *cond);
 struct qthread {
     int tid;
     //void *retval;
-};
-
-struct qthread_mutex {
-        short state;
 };
 
 struct qthread_cond {

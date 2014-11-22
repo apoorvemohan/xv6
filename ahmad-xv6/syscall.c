@@ -100,6 +100,10 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_kthread_create(void);
 extern int sys_kthread_join(void);
+extern int sys_kthread_mutex_init(void);
+extern int sys_kthread_mutex_destroy(void);
+extern int sys_kthread_mutex_lock(void);
+extern int sys_kthread_mutex_unlock(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -125,6 +129,10 @@ static int (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_kthread_join] sys_kthread_join,
 [SYS_kthread_create] sys_kthread_create,
+[SYS_kthread_mutex_init] sys_kthread_mutex_init,
+[SYS_kthread_mutex_destroy] sys_kthread_mutex_destroy,
+[SYS_kthread_mutex_lock] sys_kthread_mutex_lock,
+[SYS_kthread_mutex_unlock] sys_kthread_mutex_unlock,
 };
 
 void
