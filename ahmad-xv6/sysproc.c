@@ -126,14 +126,17 @@ int sys_kthread_init(void){
 	int i,  flag = -1;
 
 	for(i=0;i<NMUTX;i++){
+
 		if(proc->mutexlist[i].id != -1){
+
 			proc->mutexlist[i].id = (i+1);
 			proc->mutexlist[i].state = 0;
 			proc->mutexlist[i].lockingthread = 0;
-			flag = proc->mutextlist[i].id;
+			flag = proc->mutexlist[i].id;
 			break;
-	}
-			
+		}
+	}	
+	
 	return flag;
 }
 
