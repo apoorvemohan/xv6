@@ -209,3 +209,6 @@ int sys_kthread_cond_broadcast(void){
 	return 0;
 }
 
+int sys_kthread_exit(void){
+	return 0;
+}

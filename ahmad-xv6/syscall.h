@@ -31,3 +31,4 @@
 #define SYS_kthread_cond_wait 30
 #define SYS_kthread_cond_signal 31
 #define SYS_kthread_cond_broadcast 32
+#define SYS_kthread_exit 33

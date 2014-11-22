@@ -13,7 +13,7 @@ typedef struct qthread_cond qthread_cond_t;
 
 int  qthread_create(qthread_t *thread, qthread_func_ptr_t start, void *arg);
 int  qthread_join(qthread_t thread, void **retval);
-int qthread_exit(void *val);
+int qthread_exit();
 
 int qthread_mutex_init(qthread_mutex_t *mutex);
 int qthread_mutex_destroy(qthread_mutex_t *mutex);

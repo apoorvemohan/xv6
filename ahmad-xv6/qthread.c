@@ -80,8 +80,7 @@ int qthread_cond_wait(qthread_cond_t *cond, qthread_mutex_t *mutex){
 	return 0;
     
 }
-/*
-int qthread_exit(){
 
+int qthread_exit(){
+	return 0;
 }
-*/
