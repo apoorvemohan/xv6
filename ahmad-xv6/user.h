@@ -24,7 +24,7 @@ int sleep(int);
 int uptime(void);
 int kthread_create(int, int, int, int);
 int kthread_join(int, int);
-int kthread_mutex_init(int);
+int kthread_mutex_init(void);
 int kthread_mutex_destroy(int);
 int kthread_mutex_lock(int);
 int kthread_mutex_unlock(int);
