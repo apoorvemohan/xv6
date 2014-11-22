@@ -14,17 +14,23 @@
 
 
 void *f1(void *arg);
+void *f2(void *v);
+
+qthread_mutex_t m;
+int mvar = 0;
 
 #define THREADSTACKSIZE 4096
 
 void test1(void){
 
 	qthread_t t[MAX_THREADS];
+    qthread_mutex_init(&m, NULL);
 
 	int i,j;
 
+    
 	for(i = 0; i < MAX_THREADS; i++){
-        	int tid = qthread_create(&t[i], f1, (void*)&i);
+        	int tid = qthread_create(&t[i], f2, (void*)&i);
         	printf(1, "[%d : %d]\n", tid, t[i]->tid);
 	}
 
@@ -36,8 +42,8 @@ void test1(void){
         	qthread_join(t[i], (void**)&j);
 		//        assert(i == j);
     	}
-
-
+    
+   printf("%d\n",mvar);
 }
 
 
@@ -98,3 +104,12 @@ void *f1(void *arg) {
         return arg;
 }
 
+void *f2(void *v)
+{
+    qthread_mutex_lock(&m);
+    mvar = 1;
+    sleep(1);
+    qthread_mutex_unlock(&m);
+
+    return 0;
+}
