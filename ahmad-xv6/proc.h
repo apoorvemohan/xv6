@@ -51,8 +51,14 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
+struct proc;
+struct kthread_mutex;
 
-
+struct kthread_mutex{
+	int id;
+	int state;
+	int lockingthread;
+};
 
 // Per-process state
 struct proc {
@@ -77,6 +83,7 @@ struct proc {
   uint wrapper;		       // Function to execute in thread
   char *ustack;		       // Thread User Stack
   uint tcount;		       // Child Thread count
+  struct kthread_mutex mutexlist[NMUTX];  // List of mutex for this process
 };
 
 // Process memory is laid out contiguously, low addresses first:

@@ -153,6 +153,12 @@ fork(char *ustack, uint wrapperaddr, uint arg1, uint arg2)
     }
 
     np->type = 0;
+
+    for(i=0;i<NMUTX;i++){
+	proc->mutexlist[i].id = -1;
+	proc->mutexlist[i].state = -1;
+        proc->mutexlist[i].lockingthread = -1;
+    }
   }
 
   np->sz = proc->sz;
