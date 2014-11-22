@@ -107,7 +107,7 @@ void *f1(void *arg) {
 void *f2(void *v)
 {
     qthread_mutex_lock(&m);
-    mvar = 1;
+    mvar++;
     sleep(1);
     qthread_mutex_unlock(&m);
 
