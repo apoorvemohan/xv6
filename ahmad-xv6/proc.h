@@ -53,11 +53,16 @@ enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 struct proc;
 struct kthread_mutex;
+struct kthread_condvar;
 
 struct kthread_mutex{
-	int id;
-	int state;
+	struct spinlock lock;
 	int lockingthread;
+};
+
+struct kthread_condvar{
+	int id;
+	int waitingthreadlist[MAXTHRDS];
 };
 
 // Per-process state
@@ -77,13 +82,13 @@ struct proc {
   char name[16];               // Process name (debugging)
 
 
-//Thread specific
   int ctflag;		       // 0 - fork creates a process; 1 - fork creates a thread
   int type;		       // 0 - Process; 1 - Thread
   uint wrapper;		       // Function to execute in thread
   char *ustack;		       // Thread User Stack
   uint tcount;		       // Child Thread count
   struct kthread_mutex mutexlist[NMUTX];  // List of mutex for this process
+  struct kthread_condvar condvarlist[NCONDVAR];
 };
 
 // Process memory is laid out contiguously, low addresses first:

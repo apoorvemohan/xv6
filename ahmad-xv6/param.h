@@ -12,4 +12,6 @@
 #define NBUF         (MAXOPBLOCKS*3)  // size of disk block cache
 
 //Thread Specific
-#define NMUTX	  16
+#define MAXTHRDS     32  // maximum number of threads that can wait on a condition variable
+#define NMUTX	     64	 // maximum mutex variables that are supported per process/thread
+#define NCONDVAR     64  // maximum condition variables that are supported per process/thread

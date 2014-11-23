@@ -123,21 +123,20 @@ int sys_kthread_join(void){
 
 int sys_kthread_mutex_init(void){
 
-	int i,  flag = -1;
+	int i;
 
 	for(i=0;i<NMUTX;i++){
 
-		if(proc->mutexlist[i].id != -1){
-
-			proc->mutexlist[i].id = (i+1);
-			proc->mutexlist[i].state = 0;
+		if(proc->mutexlist[i].lock.id == (i+1)){
+			flag = (i+1);
+			proc->mutexlist[i].lock.id = (i+1);
+			initlock(&proc->mutexlist[i].lock, (char*)(i+1));
 			proc->mutexlist[i].lockingthread = 0;
-			flag = proc->mutexlist[i].id;
-			break;
+			return (i+1);
 		}
 	}	
 	
-	return flag;
+	return -1;
 }
 
 int sys_kthread_mutex_destroy(void){
@@ -145,13 +144,13 @@ int sys_kthread_mutex_destroy(void){
 	int mutex;
 	argint(0, &mutex);
 
-	if(proc->mutexlist[mutex-1].id != mutex)
+	if((mutex <= 0) || (mutex > NMUTX) || (proc->mutexlist[mutex-1].lock.id != mutex))
 		return -1;
 		
-	proc->mutexlist[mutex-1].id = -1;
-	proc->mutexlist[mutex-1].state = -1;
+	proc->mutexlist[mutex-1].lock.id = -1;
+	initlock(&proc->mutexlist[i].lock, (char*)-1);
 	proc->mutexlist[mutex-1].lockingthread = -1;
-	return 0;		
+	return mutex;		
 }
 
 int sys_kthread_mutex_lock(void){
@@ -159,10 +158,10 @@ int sys_kthread_mutex_lock(void){
 	int mutex = 0;
 	argint(0, &mutex);
 
-	if((mutex > 0) && (proc->mutexlist[mutex-1].id == mutex)){
-		while(proc->mutexlist[mutex-1].state);
-		proc->mutexlist[mutex-1].state = 1;
-		proc->mutexlist[mutex-1].lockingthread = mutex;	
+	if((proc->type) && (mutex > 0) && (mutex <= NMUTX) && (proc->parent->mutexlist[mutex-1].id == mutex)){
+		while(proc->parent->mutexlist[mutex-1].lock.locked);
+		acquire(&proc->parent->mutexlist[mutex-1].lock);
+		proc->parent->mutexlist[mutex-1].lockingthread = mutex;	
 		return mutex;
 	}
 	
@@ -174,9 +173,9 @@ int sys_kthread_mutex_unlock(void){
 	int mutex = 0;
 	argint(0, &mutex);
 
-	if((mutex > 0) && (proc->mutexlist[mutex-1].id == mutex)){
-		proc->mutexlist[mutex-1].state = 0;
-		proc->mutexlist[mutex-1].lockingthread = 0;
+	if((proc->type)&& (mutex > 0) && (mutex <= NMUTX) && (proc->parent->mutexlist[mutex-1].id == mutex)){
+		release(&proc->parent->mutexlist[mutex-1].lock);
+		proc->parent->mutexlist[mutex-1].lockingthread = 0;
 		return mutex;
 	}
 
@@ -186,25 +185,96 @@ int sys_kthread_mutex_unlock(void){
 
 int sys_kthread_cond_init(void){
 
-	return 0;
+	int i, flag = -1;
+	
+	for(i=0;i<NCONDVAR;i++){
+		if(proc->condvarlist[i].id == -1){
+			 flag = (i+1);
+			proc->condvarlist[i].id = (i+1);
+			int j;
+			for(j=0;i<MAXTHRDS;j++)
+				proc->condvarlist[i].waitingthreadlist[j] = 0;
+			break;
+		}
+	}
+
+	return flag;
 }
 
 int sys_kthread_cond_destroy(void){
+
+	int condvar = 0;
+	
+	argint(0, &condvar);
+
+	if((condvar <= 0) || (condvar > NCONDVAR) || (proc->condvarlist[condvar-1].id != condvar))
+		return -1;
+
+	proc->condvarlist[condvar-1].id = -1;
+	int j;
+	for(j=0;i<MAXTHRDS;j++)
+		proc->condvarlist[condvar-1].waitingthreadlist[j] = -1;	
 
 	return 0;	
 }
 
 int sys_kthread_cond_wait(void){
 
-	return 0;
+	int mutex = 0 , condvar = 0; 
+
+	argint(0, &condvar);
+	argint(1, &mutex);
+
+	if((condvar > 0) && (condvar <= NMUTEX) && (mutex > 0) && (condvar <= NCONDVAR)){
+		int i;
+		for(i=0;i<MAXTHRD;i++){
+			if(proc->parent->condvarlist[condvar-1].waitingthreadlist[i] == -1){
+				proc->parent->condvarlist[condvar-1].waitingthreadlist[i] = proc->id;
+				sleep((void*)proc->id, &proc->parent->mutexlist[mutex-1].lock);
+				return 0;
+			}
+		}
+	}
+
+	return -1;
 }
 
 int sys_kthread_cond_signal(void){
+
+	int i, condvar = 0;
+
+	argint(0, &condvar);
+
+	if((condvar < 1) || (condvar > NCONDVAR))
+		return -1;
+
+	for(i=0;i<MAXTHRD;i++){
+		if(proc->parent->condvarlist[condvar-1].waitingthreadlist[i] != -1){
+			proc->parent->condvarlist[condvar-1].waitingthreadlist[i] = -1;
+			wakeup((void*)proc->parent->condvarlist[condvar-1].waitingthreadlist[i]);
+			break;
+		}
+	}
 
 	return 0;
 }
 
 int sys_kthread_cond_broadcast(void){
+
+	int i, condvar = 0;
+	
+	argint(0, &condvar);
+	
+	if((condvar < 1) || (condvar > NCONDVAR))
+             return -1;
+
+	for(i=0;i<MAXTHRD;i++){
+               	if(proc->parent->condvarlist[condvar-1].waitingthreadlist[i] != -1){
+                       	proc->parent->condvarlist[condvar-1].waitingthreadlist[i] = -1;
+                       	wakeup((void*)proc->parent->condvarlist[condvar-1].waitingthreadlist[i]);
+               	}
+        }
+		
 
 	return 0;
 }
