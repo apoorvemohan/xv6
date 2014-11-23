@@ -4,8 +4,8 @@
 #include "param.h"
 #include "memlayout.h"
 #include "mmu.h"
+#include "spinlock.h"
 #include "proc.h"
-
 int
 sys_fork(void)
 {
@@ -128,7 +128,6 @@ int sys_kthread_mutex_init(void){
 	for(i=0;i<NMUTX;i++){
 
 		if(proc->mutexlist[i].lock.id == (i+1)){
-			flag = (i+1);
 			proc->mutexlist[i].lock.id = (i+1);
 			initlock(&proc->mutexlist[i].lock, (char*)(i+1));
 			proc->mutexlist[i].lockingthread = 0;
@@ -148,7 +147,7 @@ int sys_kthread_mutex_destroy(void){
 		return -1;
 		
 	proc->mutexlist[mutex-1].lock.id = -1;
-	initlock(&proc->mutexlist[i].lock, (char*)-1);
+	initlock(&proc->mutexlist[mutex-1].lock, (char*)-1);
 	proc->mutexlist[mutex-1].lockingthread = -1;
 	return mutex;		
 }
@@ -158,7 +157,7 @@ int sys_kthread_mutex_lock(void){
 	int mutex = 0;
 	argint(0, &mutex);
 
-	if((proc->type) && (mutex > 0) && (mutex <= NMUTX) && (proc->parent->mutexlist[mutex-1].id == mutex)){
+	if((proc->type) && (mutex > 0) && (mutex <= NMUTX) && (proc->parent->mutexlist[mutex-1].lock.id == mutex)){
 		while(proc->parent->mutexlist[mutex-1].lock.locked);
 		acquire(&proc->parent->mutexlist[mutex-1].lock);
 		proc->parent->mutexlist[mutex-1].lockingthread = mutex;	
@@ -173,7 +172,7 @@ int sys_kthread_mutex_unlock(void){
 	int mutex = 0;
 	argint(0, &mutex);
 
-	if((proc->type)&& (mutex > 0) && (mutex <= NMUTX) && (proc->parent->mutexlist[mutex-1].id == mutex)){
+	if((proc->type)&& (mutex > 0) && (mutex <= NMUTX) && (proc->parent->mutexlist[mutex-1].lock.id == mutex)){
 		release(&proc->parent->mutexlist[mutex-1].lock);
 		proc->parent->mutexlist[mutex-1].lockingthread = 0;
 		return mutex;
@@ -212,7 +211,7 @@ int sys_kthread_cond_destroy(void){
 
 	proc->condvarlist[condvar-1].id = -1;
 	int j;
-	for(j=0;i<MAXTHRDS;j++)
+	for(j=0;j<MAXTHRDS;j++)
 		proc->condvarlist[condvar-1].waitingthreadlist[j] = -1;	
 
 	return 0;	
@@ -225,12 +224,12 @@ int sys_kthread_cond_wait(void){
 	argint(0, &condvar);
 	argint(1, &mutex);
 
-	if((condvar > 0) && (condvar <= NMUTEX) && (mutex > 0) && (condvar <= NCONDVAR)){
+	if((condvar > 0) && (condvar <= NMUTX) && (mutex > 0) && (condvar <= NCONDVAR)){
 		int i;
-		for(i=0;i<MAXTHRD;i++){
+		for(i=0;i<MAXTHRDS;i++){
 			if(proc->parent->condvarlist[condvar-1].waitingthreadlist[i] == -1){
-				proc->parent->condvarlist[condvar-1].waitingthreadlist[i] = proc->id;
-				sleep((void*)proc->id, &proc->parent->mutexlist[mutex-1].lock);
+				proc->parent->condvarlist[condvar-1].waitingthreadlist[i] = proc->pid;
+				sleep((void*)proc->pid, &proc->parent->mutexlist[mutex-1].lock);
 				return 0;
 			}
 		}
@@ -248,7 +247,7 @@ int sys_kthread_cond_signal(void){
 	if((condvar < 1) || (condvar > NCONDVAR))
 		return -1;
 
-	for(i=0;i<MAXTHRD;i++){
+	for(i=0;i<MAXTHRDS;i++){
 		if(proc->parent->condvarlist[condvar-1].waitingthreadlist[i] != -1){
 			proc->parent->condvarlist[condvar-1].waitingthreadlist[i] = -1;
 			wakeup((void*)proc->parent->condvarlist[condvar-1].waitingthreadlist[i]);
@@ -268,7 +267,7 @@ int sys_kthread_cond_broadcast(void){
 	if((condvar < 1) || (condvar > NCONDVAR))
              return -1;
 
-	for(i=0;i<MAXTHRD;i++){
+	for(i=0;i<MAXTHRDS;i++){
                	if(proc->parent->condvarlist[condvar-1].waitingthreadlist[i] != -1){
                        	proc->parent->condvarlist[condvar-1].waitingthreadlist[i] = -1;
                        	wakeup((void*)proc->parent->condvarlist[condvar-1].waitingthreadlist[i]);

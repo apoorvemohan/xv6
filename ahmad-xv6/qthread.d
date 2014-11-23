@@ -1,1 +1,1 @@
-qthread.o: qthread.c /usr/include/stdc-predef.h types.h qthread.h user.h
+qthread.o: qthread.c types.h qthread.h user.h
