@@ -31,11 +31,13 @@ void test1(void){
     
 	for(i = 0; i < MAX_THREADS; i++){
         	int tid = qthread_create(&t[i], f2, (void*)&i);
-        	printf(1, "[%d : %d]\n", tid, t[i]->tid);
+        	//printf(1, "[%d : %d]\n", tid, t[i]->tid);
+            printf(1, "[%d : %d]\n", tid, t[i]);
 	}
 
 	for (i = 0; i < MAX_THREADS; i++){
-        	printf(1, "%d\n", t[i]->tid);
+        	//printf(1, "%d\n", t[i]->tid);
+            printf(1, "%d\n", t[i]);
     	}
 
   	for (i = 0; i < MAX_THREADS; i++) {
