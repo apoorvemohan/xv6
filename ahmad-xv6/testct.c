@@ -16,8 +16,15 @@
 void *f1(void *arg);
 void *f2(void *v);
 
+int N = 10;
+int var = 0;
+qthread_cond_t t1;
+
+
+void *f4(void *v);
+
 qthread_mutex_t m;
-int mvar = 0;
+int t1rdy;
 
 #define THREADSTACKSIZE 4096
 
@@ -95,8 +102,25 @@ void test1(void){
 
 int main(void){
 
-test1();
-exit();
+//test1();
+//exit();
+
+     t1rdy = 0;
+     qthread_cond_init(&t1);
+
+    qthread_t t[10];
+    int i, j;
+    for (i = 0; i < 10; i++){
+        qthread_create(&t[i], f4, (void*)&i);
+    }
+    for (i = 0; i < 10; i++) {
+        qthread_join(t[i], (void**)&j);
+    }
+     qthread_cond_destroy(&t1);
+
+     printf(1,"Final Count: %d\n", t1rdy);
+
+     printf(1,"Test 3 OK\n");
 
 }
 
@@ -114,4 +138,23 @@ void *f2(void *v)
     qthread_mutex_unlock(&m);
 
     return 0;
+}
+
+void *f4(void *v) {
+
+
+    qthread_mutex_lock(&m);
+    t1rdy++;
+
+    printf(1,"count: %d\n", t1rdy);
+    if(t1rdy == N)
+        var = 1;
+
+    while(!var) 
+        qthread_cond_wait(&t1, &m);
+
+    qthread_cond_signal(&t1);
+    printf(1,"count: %d\n", t1rdy);
+    t1rdy--;
+    qthread_mutex_unlock(&m);
 }
