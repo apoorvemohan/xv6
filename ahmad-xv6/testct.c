@@ -20,7 +20,7 @@ int N = 10;
 int var = 0;
 qthread_cond_t t1;
 
-
+int mvar= 0;
 void *f4(void *v);
 
 qthread_mutex_t m;
