@@ -121,6 +121,7 @@ int main(void){
      printf(1,"Final Count: %d\n", t1rdy);
 
      printf(1,"Test 3 OK\n");
+     exit();
 
 }
 
