@@ -157,4 +157,5 @@ void *f4(void *v) {
     printf(1,"count: %d\n", t1rdy);
     t1rdy--;
     qthread_mutex_unlock(&m);
+    return 0;
 }
