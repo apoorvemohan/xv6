@@ -7,7 +7,8 @@ struct qthreadList;
  */
 typedef void *(*qthread_func_ptr_t)(void*);  
 
-typedef struct qthread *qthread_t;
+//typedef struct qthread *qthread_t;
+typedef int qthread_t;
 typedef int qthread_mutex_t;
 typedef struct qthread_cond qthread_cond_t;
 
