@@ -89,6 +89,7 @@ struct proc {
   uint tcount;		       // Child Thread count
   struct kthread_mutex mutexlist[NMUTX];  // List of mutex for this process
   struct kthread_condvar condvarlist[NCONDVAR];
+  int threadattr;
 };
 
 // Process memory is laid out contiguously, low addresses first:

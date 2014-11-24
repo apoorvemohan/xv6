@@ -131,7 +131,7 @@ growproc(int n)
 // Sets up stack to return as if from system call.
 // Caller must set state of returned proc to RUNNABLE.
 int
-fork(char *ustack, uint wrapperaddr, uint arg1, uint arg2)
+fork(char *ustack, uint thrdattr, uint wrapperaddr, uint arg1, uint arg2)
 {
   int i, pid;
   struct proc *np;
@@ -144,7 +144,7 @@ fork(char *ustack, uint wrapperaddr, uint arg1, uint arg2)
 
   	np->pgdir = proc->pgdir;
     	np->type = 1;
-
+	np->threadattr = thrdattr;
 
   } else {
 
@@ -157,7 +157,6 @@ fork(char *ustack, uint wrapperaddr, uint arg1, uint arg2)
     	}
 
     	np->type = 0;
-
   }
 
   np->sz = proc->sz;
