@@ -213,7 +213,7 @@ void *f42(void* arg)
     return 0;
 }
 
-void test4(void)
+/*void test4(void)
 {
     void *val;
 
@@ -229,7 +229,7 @@ void test4(void)
         exit();
     }
     printf(stdout, "Test 4 OK\n");
-}
+}*/
 
 /* Test that exit works properly (UNIX semantics - kills all threads)
  * OK if it doesn't pass.
@@ -285,7 +285,7 @@ int main(int argc, char **argv)
      */
 
     test1();
-    test2();
+//    test2();
     
     /* 3. condvar and sleep.
      * initialize a condvar and a mutex
@@ -296,7 +296,7 @@ int main(int argc, char **argv)
      * call qthread_signal, qthread_yield until count indicates a
      *   thread has left. repeat.
      */
-    test3();
+//    test3();
     
     /* 4. read/write
      * create a pipe ('int fd[2]; pipe(fd);')
@@ -304,12 +304,12 @@ int main(int argc, char **argv)
      * one sleeps and then writes to the pipe
      * one reads from the pipe. [this tests blocking read]
      */
-    test4();
+//    test4();
     
     /* test 5 - exit
      * create 10 threads, have them each sleep, then call exit
      */
-    test5();
+//    test5();
     
     exit();
     return 0;

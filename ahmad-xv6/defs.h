@@ -104,7 +104,7 @@ int             pipewrite(struct pipe*, char*, int);
 // proc.c
 struct proc*    copyproc(struct proc*);
 void            exit(void);
-int             fork(char*, uint, uint, uint);
+int             fork(char*,uint, uint, uint, uint);
 int             growproc(int);
 int             kill(int);
 void            pinit(void);

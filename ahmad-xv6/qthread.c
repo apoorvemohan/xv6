@@ -12,13 +12,13 @@ void wrapper(qthread_func_ptr_t func, void *arg) {
 
 int qthread_create(qthread_t *thread,qthread_attr_t *attr, qthread_func_ptr_t my_func, void *arg) {
 
-    //*thread = (qthread_t)malloc(sizeof(struct qthread));
-    //int t_id = kthread_create((int)((char*)malloc(THREADSTACKSIZE) + THREADSTACKSIZE), (int)wrapper, (int)my_func, *(int*)arg);
-    //(*thread)->tid = t_id;
-
     *thread = (qthread_t)malloc(sizeof(int));
-    *thread = kthread_create((int)((char*)malloc(THREADSTACKSIZE) + THREADSTACKSIZE),attr, (int)wrapper, (int)my_func, *(int*)arg);
-    return *thread;
+    **thread = kthread_create((int)((char*)malloc(THREADSTACKSIZE) + THREADSTACKSIZE), *attr, (int)wrapper, (int)my_func, *(int*)arg);
+
+    if(**thread == -1)
+    	return **thread;
+    else
+       return 0;
 }
 
 int qthread_join(qthread_t thread, void **retval){

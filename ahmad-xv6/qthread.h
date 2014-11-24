@@ -11,9 +11,9 @@ typedef void *(*qthread_func_ptr_t)(void*);
 typedef int qthread_attr_t;       /* need to support detachstate */
 typedef void qthread_mutexattr_t; /* no mutex attributes needed */
 typedef void qthread_condattr_t;  /* no cond attributes needed */
-typedef int qthread_t;
+typedef int *qthread_t;
 typedef int qthread_mutex_t;
-typedef struct qthread_cond qthread_cond_t;
+typedef int qthread_cond_t;
 
 int  qthread_create(qthread_t *thread, qthread_attr_t *attr, qthread_func_ptr_t start, void *arg);
 int  qthread_join(qthread_t thread, void **retval);
@@ -32,18 +32,4 @@ int qthread_cond_broadcast(qthread_cond_t *cond);
 
 
 
-struct qthread {
-    int tid;
-    //void *retval;
-};
-
-struct qthread_cond {
-    struct qthreadList *waitingList;
-};
-
-
-struct qthreadList {
-    qthread_t thread;
-    struct qthreadList *next;
-};
 
