@@ -117,7 +117,12 @@ growproc(int n)
     if((sz = deallocuvm(proc->pgdir, sz, sz + n)) == 0)
       return -1;
   }
+
+  if(proc->type)
+   proc->parent->sz = sz;
+
   proc->sz = sz;
+  
   switchuvm(proc);
   return 0;
 }
