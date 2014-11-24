@@ -10,7 +10,7 @@ int
 sys_fork(void)
 {
   proc->ctflag = 0;
-  return fork((char*)0, 0, 0, 0);
+  return fork((char*)0, 0, 0, 0, 0);
 }
 
 int
@@ -100,17 +100,19 @@ int sys_getppid(void) {
 int sys_kthread_create(void){
 
 	int ustack = 0;
+	int thrdattr = 0;
 	int wrapper = 0;
 	int arg1 = 0;
 	int arg2 = 0;
 
 	argint(0, &ustack);
-	argint(1, &wrapper);
-	argint(2, &arg1);
-	argint(3, &arg2);
+	argint(1, &thrdattr);
+	argint(2, &wrapper);
+	argint(3, &arg1);
+	argint(4, &arg2);
 
 	proc->ctflag = 1;
-	return fork((char*)ustack, (uint)wrapper, (uint)arg1, (uint)arg2);
+	return fork((char*)ustack, thrdattr, (uint)wrapper, (uint)arg1, (uint)arg2);
 }
 
 int sys_kthread_join(void){
