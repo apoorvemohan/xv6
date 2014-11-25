@@ -201,10 +201,19 @@ if(proc->ctflag){
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 
+
   for(i = 0; i < NOFILE; i++)
-    if(proc->ofile[i])
-      np->ofile[i] = filedup(proc->ofile[i]);
-  np->cwd = idup(proc->cwd);
+    if(proc->ofile[i]){
+//	if(proc->ctflag)
+//		np->ofile[i] = proc->ofile[i];
+//	else
+		np->ofile[i] = filedup(proc->ofile[i]);
+  }
+
+//  if(proc->ctflag)
+//	np->cwd = proc->cwd;
+  //else
+  	np->cwd = idup(proc->cwd);
 
   safestrcpy(np->name, proc->name, sizeof(proc->name));
  
@@ -718,7 +727,7 @@ int condvar_signal(int condvar){
         for(i=0;i<MAXTHRDS;i++){
 
                 if(proc->type){
-                        if(proc->parent->condvarlist[condvar-1].waitingthreadlist[i] != 0){
+                        if(proc->parent->condvarlist[condvar-1].waitingthreadlist[i] > 0){
                                 wakeup((void*)proc->parent->condvarlist[condvar-1].waitingthreadlist[i]);
 				acquire(&ptable.lock);
                                 proc->parent->condvarlist[condvar-1].waitingthreadlist[i] = 0;
@@ -727,7 +736,7 @@ int condvar_signal(int condvar){
                         }
                 } else {
 
-                        if(proc->condvarlist[condvar-1].waitingthreadlist[i] != 0){
+                        if(proc->condvarlist[condvar-1].waitingthreadlist[i] > 0){
                                 wakeup((void*)proc->condvarlist[condvar-1].waitingthreadlist[i]);
                                 acquire(&ptable.lock);
                                 proc->condvarlist[condvar-1].waitingthreadlist[i] = 0;
@@ -750,7 +759,7 @@ int condvar_broadcast(int condvar){
         for(i=0;i<MAXTHRDS;i++){
 
                 if(proc->type){
-                        if(proc->parent->condvarlist[condvar-1].waitingthreadlist[i] != 0){
+                        if(proc->parent->condvarlist[condvar-1].waitingthreadlist[i] > 0){
                                 wakeup((void*)proc->parent->condvarlist[condvar-1].waitingthreadlist[i]);
                                 acquire(&ptable.lock);
                                 proc->parent->condvarlist[condvar-1].waitingthreadlist[i] = 0;
@@ -758,7 +767,7 @@ int condvar_broadcast(int condvar){
                         }
                 } else {
 
-                        if(proc->condvarlist[condvar-1].waitingthreadlist[i] != 0){
+                        if(proc->condvarlist[condvar-1].waitingthreadlist[i] > 0){
                                 wakeup((void*)proc->condvarlist[condvar-1].waitingthreadlist[i]);
                                 acquire(&ptable.lock);
                                 proc->condvarlist[condvar-1].waitingthreadlist[i] = 0;

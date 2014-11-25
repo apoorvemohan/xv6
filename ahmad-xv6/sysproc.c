@@ -9,6 +9,9 @@
 int
 sys_fork(void)
 {
+  if(proc->type || proc->tcount)
+	return -1;
+
   proc->ctflag = 0;
   return fork((char*)0, 0, 0, 0, 0);
 }

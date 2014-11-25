@@ -24,12 +24,16 @@ int qthread_create(qthread_t *thread,qthread_attr_t *attr, qthread_func_ptr_t my
 
 int qthread_join(qthread_t thread, void **retval){
 
+    printf(1, "TID: %d\n", *thread);
+
     int val = kthread_join(*thread);
+
+    printf(1, "JoinRetval1: %d\n", val);
 
     if(val != -1)
 	if((val  = kthread_fetchretval(*thread)) != -1)
-		*retval = (void*)val;
-	
+		*retval = (void*)val;	
+
     if(val != -1)
 	val = 0;
 

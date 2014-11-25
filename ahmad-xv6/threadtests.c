@@ -144,8 +144,14 @@ void test3(void)
     sleep(1);
     if (count != 0) {
         printf(stdout, "Test 3a failed: count %d\n", count);
+	for(i=0;i<10;i++)
+        	qthread_join(t[i], NULL);
         exit();
     }
+
+    for(i=0;i<10;i++)
+        qthread_join(t[i], NULL);
+
     printf(stdout, "Test 3a OK\n");
 
     for (i = 0; i < 10; i++)
@@ -159,8 +165,14 @@ void test3(void)
     while (count != 0)
         if (uptime() > t0+20) {
             printf(stdout, "Test 3b: timeout\n");
+	    for(i=0;i<10;i++)
+        	qthread_join(t[i], NULL);
             exit();
         }
+
+    for(i=0;i<10;i++)
+        qthread_join(t[i], NULL);
+
     printf(stdout, "Test 3b OK\n");
     
     for (i = 0; i < 10; i++)
@@ -174,13 +186,20 @@ void test3(void)
             break;
     if (count != 0) {
         printf(stdout, "Test 3c failed: count=%d\n", count);
+	for(i=0;i<10;i++)
+        	qthread_join(t[i], NULL);
         exit();
     }
 
+    for(i=0;i<10;i++)
+	qthread_join(t[i], NULL);
+
     qthread_mutex_destroy(&m);
+    printf(1, "Mutex Destroyed\n");
     qthread_cond_destroy(&c);
     m = c = -1;                 // ASSUMPTION: mutex_t, cond_t = int
     
+    printf(1, "condvar destroyed\n");
     printf(stdout, "Test 3 OK\n");
 }
 
@@ -217,7 +236,7 @@ void *f42(void* arg)
     return 0;
 }
 
-/*void test4(void)
+void test4(void)
 {
     void *val;
 
@@ -228,12 +247,12 @@ void *f42(void* arg)
     qthread_join(t1, &val);
 
     // ASSUMPTION: qthread_t is the same as pid
-    if (kill(t1) >= 0 || kill(t2) >= 0) {
+    if (kill(*t1) >= 0 || kill(*t2) >= 0) {
         printf(stdout, "Test 4: threads still alive\n");
         exit();
     }
     printf(stdout, "Test 4 OK\n");
-}*/
+}
 
 /* Test that exit works properly (UNIX semantics - kills all threads)
  * OK if it doesn't pass.
@@ -288,8 +307,8 @@ int main(int argc, char **argv)
      * but it's a good start.
      */
 
-    test1();
-    test2();
+//    test1();
+//    test2();
     
     /* 3. condvar and sleep.
      * initialize a condvar and a mutex
@@ -300,7 +319,7 @@ int main(int argc, char **argv)
      * call qthread_signal, qthread_yield until count indicates a
      *   thread has left. repeat.
      */
-    test3();
+//    test3();
     
     /* 4. read/write
      * create a pipe ('int fd[2]; pipe(fd);')
@@ -308,7 +327,7 @@ int main(int argc, char **argv)
      * one sleeps and then writes to the pipe
      * one reads from the pipe. [this tests blocking read]
      */
-//    test4();
+    test4();
     
     /* test 5 - exit
      * create 10 threads, have them each sleep, then call exit
