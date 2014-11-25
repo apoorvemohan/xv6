@@ -111,6 +111,9 @@ extern int sys_kthread_cond_wait(void);
 extern int sys_kthread_cond_signal(void);
 extern int sys_kthread_cond_broadcast(void);
 extern int sys_kthread_exit(void);
+extern int sys_kthread_fetchretval(void);
+extern int sys_kthread_saveretval(void);
+
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -146,6 +149,8 @@ static int (*syscalls[])(void) = {
 [SYS_kthread_cond_signal] sys_kthread_cond_signal,
 [SYS_kthread_cond_broadcast] sys_kthread_cond_broadcast,
 [SYS_kthread_exit] sys_kthread_exit,
+[SYS_kthread_saveretval] sys_kthread_saveretval,
+[SYS_kthread_fetchretval] sys_kthread_fetchretval,
 };
 
 void

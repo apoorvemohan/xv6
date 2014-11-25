@@ -23,7 +23,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int kthread_create(int,int, int, int, int);
-int kthread_join(int, int);
+int kthread_join(int);
 int kthread_mutex_init(void);
 int kthread_mutex_destroy(int);
 int kthread_mutex_lock(int);
@@ -34,6 +34,9 @@ int kthread_cond_wait(int,int);
 int kthread_cond_signal(int);
 int kthread_cond_broadcast(int);
 int kthread_exit(void);
+int kthread_saveretval(int);
+int kthread_fetchretval(int);
+
 
 // ulib.c
 int stat(char*, struct stat*);

@@ -32,3 +32,6 @@
 #define SYS_kthread_cond_signal 31
 #define SYS_kthread_cond_broadcast 32
 #define SYS_kthread_exit 33
+#define SYS_kthread_saveretval 34
+#define SYS_kthread_fetchretval 35
+

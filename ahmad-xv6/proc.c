@@ -133,7 +133,7 @@ growproc(int n)
 int
 fork(char *ustack, uint thrdattr, uint wrapperaddr, uint arg1, uint arg2)
 {
-  int i, pid;
+  int i, j, pid;
   struct proc *np;
 
   // Allocate process.
@@ -145,6 +145,7 @@ fork(char *ustack, uint thrdattr, uint wrapperaddr, uint arg1, uint arg2)
   	np->pgdir = proc->pgdir;
     	np->type = 1;
 	np->threadattr = thrdattr;
+	np->threadretval = -1;
 
   } else {
 
@@ -157,6 +158,19 @@ fork(char *ustack, uint thrdattr, uint wrapperaddr, uint arg1, uint arg2)
     	}
 
     	np->type = 0;
+  }
+
+  for(i=0;i<NMUTX;i++){
+    np->mutexlist[i].lockingthread = -1;
+    np->mutexlist[i].lock.id = -1;	
+  }
+
+  for(i=0;i<NCONDVAR;i++){
+
+    np->condvarlist[i].id = -1;
+
+    for(j=0;j<MAXTHRDS;j++)
+      np->condvarlist[i].waitingthreadlist[j] = -1;
   }
 
   np->sz = proc->sz;
@@ -278,18 +292,19 @@ wait(uint tid)
         kfree(p->kstack);
         p->kstack = 0;
 
-	if(!p->type && (p->tcount == 0))
+	if(!p->type && (p->tcount == 0)){
            freevm(p->pgdir);
+           p->state = UNUSED;
+	   p->pid = 0;
+	   p->parent = 0;
+           p->name[0] = 0;
+           p->killed = 0;
+	}
 	else {
 	   p->pgdir = 0;
 	   p->parent->tcount-=1;
 	}
 
-        p->state = UNUSED;
-        p->pid = 0;
-        p->parent = 0;
-        p->name[0] = 0;
-        p->killed = 0;
         release(&ptable.lock);
         return pid;
       }
@@ -434,6 +449,32 @@ sleep(void *chan, struct spinlock *lk)
   }
 }
 
+void
+modified_sleep(void *chan, struct spinlock *lk)
+{
+  if(proc == 0)
+    panic("sleep");
+
+  if(lk == 0)
+    panic("sleeping on condvar without mutex");
+
+    acquire(&ptable.lock);  //DOC: sleeplock1
+    xchg(&lk->locked, 0);
+
+  // Go to sleep.
+  proc->chan = chan;
+  proc->state = SLEEPING;
+  sched();
+
+  // Tidy up.
+  proc->chan = 0;
+
+  // Reacquire original lock.
+    release(&ptable.lock);
+    while(xchg(&lk->locked, 1) != 0);
+}
+
+
 //PAGEBREAK!
 // Wake up all processes sleeping on chan.
 // The ptable lock must be held.
@@ -515,3 +556,217 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+
+int getthreadretval(int tid){
+
+	int retval = -1;
+	struct proc *p;
+
+	acquire(&ptable.lock);
+	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      		if(p->type && (p->pid == tid)){
+			retval = p->threadretval;
+			p->state = UNUSED;
+           		p->pid = 0;
+           		p->parent = 0;
+           		p->name[0] = 0;
+           		p->killed = 0;
+			p->type = 0;
+			break;
+		}		
+	}
+	release(&ptable.lock);
+
+	return retval;
+}
+
+int mutex_init(){
+
+	int retval = -1;
+	int i;
+
+	acquire(&ptable.lock);
+	for(i=0;i<NMUTX;i++){
+		if(proc->mutexlist[i].lock.id == -1){
+			proc->mutexlist[i].lock.id = (i+1);
+			initlock(&proc->mutexlist[i].lock, (char*)(i+1));
+			proc->mutexlist[i].lockingthread = 0;
+			retval = (i+1);
+			break;
+		}
+	}
+	release(&ptable.lock);
+
+	return retval;
+}
+
+int mutex_destroy(int mutex){
+
+	int retval = -1;
+
+	acquire(&ptable.lock);
+	if((mutex > 0) && (mutex <= NMUTX) && (proc->mutexlist[mutex-1].lock.id == mutex)){
+		proc->mutexlist[mutex-1].lock.id = -1;
+		initlock(&proc->mutexlist[mutex-1].lock, (char*)-1);
+		proc->mutexlist[mutex-1].lockingthread = -1;
+		retval = mutex;
+	}
+	release(&ptable.lock);
+
+	return retval;
+}
+
+int mutex_lock(int mutex){
+
+	int retval = -1;
+
+	if((proc->type) && (mutex > 0) && (mutex <= NMUTX) && (proc->parent->mutexlist[mutex-1].lock.id == mutex)){
+		while(proc->parent->mutexlist[mutex-1].lock.locked);
+		acquire(&ptable.lock);
+		while(xchg(&proc->parent->mutexlist[mutex-1].lock.locked, 1) != 0);
+		proc->parent->mutexlist[mutex-1].lockingthread = mutex;	
+		release(&ptable.lock);
+		retval = mutex;
+	}
+
+	return retval;
+
+}
+
+int mutex_unlock(int mutex){
+
+	int retval = -1;
+
+	if((proc->type)&& (mutex > 0) && (mutex <= NMUTX) && (proc->parent->mutexlist[mutex-1].lock.id == mutex)){
+		acquire(&ptable.lock);
+		xchg(&proc->parent->mutexlist[mutex-1].lock.locked, 0);		
+		proc->parent->mutexlist[mutex-1].lockingthread = 0;
+		release(&ptable.lock);
+		retval = mutex;
+	}
+
+	return retval;
+}
+
+int condvar_init(){
+
+        int i, flag = -1;
+	
+	acquire(&ptable.lock);
+        for(i=0;i<NCONDVAR;i++){
+                if(proc->condvarlist[i].id == -1){
+                        flag = (i+1);
+                        proc->condvarlist[i].id = (i+1);
+                        int j;
+                        for(j=0;j<MAXTHRDS;j++)
+                                proc->condvarlist[i].waitingthreadlist[j] = 0;
+                        break;
+                }
+        }
+	release(&ptable.lock);
+
+        return flag;
+}
+
+int condvar_destroy(int condvar){
+
+	int retval = -1;
+
+	acquire(&ptable.lock);
+	if((condvar > 0) && (condvar <= NCONDVAR) && (proc->condvarlist[condvar-1].id == condvar)){
+              
+	        proc->condvarlist[condvar-1].id = -1;
+        	int j;
+	        for(j=0;j<MAXTHRDS;j++)
+        	        proc->condvarlist[condvar-1].waitingthreadlist[j] = -1;
+		retval = condvar;
+	}
+	release(&ptable.lock);
+
+	return retval;
+}
+
+int condvar_wait(int condvar, int mutex){
+
+	int retval = -1;
+
+	if((condvar > 0) && (condvar <= NMUTX) && (mutex > 0) && (condvar <= NCONDVAR)){
+                int i;
+                for(i=0;i<MAXTHRDS;i++){
+                        if(proc->parent->condvarlist[condvar-1].waitingthreadlist[i] == 0){
+				acquire(&ptable.lock);
+                                proc->parent->condvarlist[condvar-1].waitingthreadlist[i] = proc->pid;
+				release(&ptable.lock);
+                                modified_sleep((void*)proc->pid, &proc->parent->mutexlist[mutex-1].lock);
+                                retval = 0;
+				break;
+                        }
+                }
+        }
+
+        return retval;
+}
+
+int condvar_signal(int condvar){
+
+	int i;
+
+        if((condvar < 1) || (condvar > NCONDVAR))
+                return -1;
+
+        for(i=0;i<MAXTHRDS;i++){
+
+                if(proc->type){
+                        if(proc->parent->condvarlist[condvar-1].waitingthreadlist[i] != 0){
+                                wakeup((void*)proc->parent->condvarlist[condvar-1].waitingthreadlist[i]);
+				acquire(&ptable.lock);
+                                proc->parent->condvarlist[condvar-1].waitingthreadlist[i] = 0;
+                                release(&ptable.lock);
+                                break;
+                        }
+                } else {
+
+                        if(proc->condvarlist[condvar-1].waitingthreadlist[i] != 0){
+                                wakeup((void*)proc->condvarlist[condvar-1].waitingthreadlist[i]);
+                                acquire(&ptable.lock);
+                                proc->condvarlist[condvar-1].waitingthreadlist[i] = 0;
+                                release(&ptable.lock);
+                                break;
+                        }
+                }
+        }
+
+        return 0;
+}
+
+int condvar_broadcast(int condvar){
+
+	int i;
+
+        if((condvar < 1) || (condvar > NCONDVAR))
+             return -1;
+
+        for(i=0;i<MAXTHRDS;i++){
+
+                if(proc->type){
+                        if(proc->parent->condvarlist[condvar-1].waitingthreadlist[i] != 0){
+                                wakeup((void*)proc->parent->condvarlist[condvar-1].waitingthreadlist[i]);
+                                acquire(&ptable.lock);
+                                proc->parent->condvarlist[condvar-1].waitingthreadlist[i] = 0;
+                                release(&ptable.lock);
+                        }
+                } else {
+
+                        if(proc->condvarlist[condvar-1].waitingthreadlist[i] != 0){
+                                wakeup((void*)proc->condvarlist[condvar-1].waitingthreadlist[i]);
+                                acquire(&ptable.lock);
+                                proc->condvarlist[condvar-1].waitingthreadlist[i] = 0;
+                                release(&ptable.lock);
+                        }
+                }
+        }
+
+        return 0;
+}
+

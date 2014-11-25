@@ -30,6 +30,7 @@ void *f1(void *arg) {
     qthread_mutex_unlock(&m1);
     return arg;
 }
+
 void test1(void)
 {
     qthread_t t[10];
@@ -133,6 +134,9 @@ void test3(void)
         qthread_create(&t[i], NULL, f3, NULL);
     while (count < 10)
         sleep(1);
+
+
+    printf(1, "GOING TO SIGNAL!!!\n");
     for (i = 0; i < 10; i++) {
         sleep(1);
         qthread_cond_signal(&c);
@@ -285,7 +289,7 @@ int main(int argc, char **argv)
      */
 
     test1();
-//    test2();
+    test2();
     
     /* 3. condvar and sleep.
      * initialize a condvar and a mutex
@@ -296,7 +300,7 @@ int main(int argc, char **argv)
      * call qthread_signal, qthread_yield until count indicates a
      *   thread has left. repeat.
      */
-//    test3();
+    test3();
     
     /* 4. read/write
      * create a pipe ('int fd[2]; pipe(fd);')

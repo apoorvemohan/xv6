@@ -116,6 +116,16 @@ void            userinit(void);
 int             wait(uint);
 void            wakeup(void*);
 void            yield(void);
+int 		getthreadretval(int);
+int 		mutex_init(void);
+int		mutex_destroy(int);
+int		mutex_lock(int);
+int		mutex_unlock(int);
+int 		condvar_init(void);
+int 		condvar_destroy(int);
+int 		condvar_wait(int, int);
+int 		condvar_signal(int);
+int		condvar_broadcast(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
