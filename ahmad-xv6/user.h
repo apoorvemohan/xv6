@@ -33,7 +33,7 @@ int kthread_cond_destroy(int);
 int kthread_cond_wait(int,int);
 int kthread_cond_signal(int);
 int kthread_cond_broadcast(int);
-int kthread_exit(void);
+int kthread_exit(int);
 int kthread_saveretval(int);
 int kthread_fetchretval(int);
 

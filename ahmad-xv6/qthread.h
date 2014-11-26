@@ -17,7 +17,7 @@ typedef int qthread_cond_t;
 
 int  qthread_create(qthread_t *thread, qthread_attr_t *attr, qthread_func_ptr_t start, void *arg);
 int  qthread_join(qthread_t thread, void **retval);
-int qthread_exit();
+void qthread_exit(void *val);
 
 int qthread_mutex_init(qthread_mutex_t *mutex, qthread_mutexattr_t *attr);
 int qthread_mutex_destroy(qthread_mutex_t *mutex);

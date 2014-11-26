@@ -117,6 +117,6 @@ int qthread_cond_wait(qthread_cond_t *cond, qthread_mutex_t *mutex){
     
 }
 
-int qthread_exit(){
-	return 0;
+void qthread_exit(void *retval){
+    kthread_exit((int)retval);
 }
