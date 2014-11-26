@@ -234,6 +234,7 @@ if(proc->ctflag){
 void
 exit(void)
 {
+
   struct proc *p;
   int fd;
 
@@ -269,6 +270,7 @@ exit(void)
 
   // Jump into the scheduler, never to return.
   proc->state = ZOMBIE;
+
   sched();
   panic("zombie exit");
 }
@@ -286,8 +288,10 @@ wait(uint tid)
     // Scan through table looking for zombie children.
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->parent != proc)
+      if(((p->parent != proc) && !proc->type) || (proc->type && (p->parent != proc->parent))) {
+//	cprintf("Proc type: %d\n", proc->type);
         continue;
+	}
       
       if(tid)
 	if(tid != p->pid)
@@ -317,6 +321,7 @@ wait(uint tid)
         release(&ptable.lock);
         return pid;
       }
+
     }
 
     // No point waiting if we don't have any children.
@@ -326,7 +331,13 @@ wait(uint tid)
     }
 
     // Wait for children to exit.  (See wakeup1 call in proc_exit.)
-    sleep(proc, &ptable.lock);  //DOC: wait-sleep
+    if(tid){
+	release(&ptable.lock);
+	yield();
+	acquire(&ptable.lock);
+    }
+    else
+	sleep(proc, &ptable.lock);  //DOC: wait-sleep
   }
 }
 
@@ -350,8 +361,9 @@ scheduler(void)
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+      if(p->state != RUNNABLE){
         continue;
+	}
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -378,6 +390,7 @@ sched(void)
 {
   int intena;
 
+  //cprintf("akkar bakkar");
   if(!holding(&ptable.lock))
     panic("sched ptable.lock");
   if(cpu->ncli != 1)
@@ -387,6 +400,7 @@ sched(void)
   if(readeflags()&FL_IF)
     panic("sched interruptible");
   intena = cpu->intena;
+  //cprintf("proc id: %d\n", proc->pid);
   swtch(&proc->context, cpu->scheduler);
   cpu->intena = intena;
 }

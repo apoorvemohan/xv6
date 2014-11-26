@@ -217,6 +217,7 @@ void *f41(void* val)
     char *data = "1234567890";
     sleep(1);
     write(a_pipe[1], data, 10);
+    printf(1, "Thread %d created\n", *t2);
     qthread_join(t2, &val);
     printf(stdout, "f41 done\n");
     close(a_pipe[1]);
@@ -244,6 +245,9 @@ void test4(void)
     qthread_create(&t1, NULL, f41, NULL);
     qthread_create(&t2, NULL, f42, NULL);
 
+    printf(1, "Thread %d created\n", *t1);
+
+    sleep(5);
     qthread_join(t1, &val);
 
     // ASSUMPTION: qthread_t is the same as pid
@@ -307,8 +311,8 @@ int main(int argc, char **argv)
      * but it's a good start.
      */
 
-//    test1();
-//    test2();
+    test1();
+    test2();
     
     /* 3. condvar and sleep.
      * initialize a condvar and a mutex
@@ -319,7 +323,7 @@ int main(int argc, char **argv)
      * call qthread_signal, qthread_yield until count indicates a
      *   thread has left. repeat.
      */
-//    test3();
+    test3();
     
     /* 4. read/write
      * create a pipe ('int fd[2]; pipe(fd);')
