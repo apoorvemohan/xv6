@@ -220,5 +220,7 @@ int sys_kthread_cond_broadcast(void){
 int sys_kthread_exit(void){
 	int retval = 0;
 	argint(0, &retval);
-	return 0;
+	proc->threadretval = retval;
+	exit();
+	return 0; //not reached
 }

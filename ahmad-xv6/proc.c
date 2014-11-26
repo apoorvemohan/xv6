@@ -175,6 +175,8 @@ fork(char *ustack, uint thrdattr, uint wrapperaddr, uint arg1, uint arg2)
 
   np->sz = proc->sz;
 
+
+//for threads invoking threads
   if(proc->type && proc->ctflag)
     np->parent = proc->parent;
   else
@@ -228,6 +230,27 @@ if(proc->ctflag){
 
 }
 
+void cleanupzombiethreads(){
+
+        struct proc *p;
+
+        acquire(&ptable.lock);
+        for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+
+                if(p->type && (p->state == ZOMBIE)){
+
+			release(&ptable.lock);
+			int val = wait(p->pid);
+			if(val != -1)
+				getthreadretval(val);
+			acquire(&ptable.lock);
+                }
+        }
+
+        release(&ptable.lock);
+}
+
+
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
 // until its parent calls wait() to find out it exited.
@@ -240,9 +263,6 @@ exit(void)
 
   if(proc == initproc)
     panic("init exiting");
-
-  if(!proc->type)
-	cprintf("proc->id : %d\n", proc->pid);
 
   // Close all open files.
   for(fd = 0; fd < NOFILE; fd++){
@@ -266,6 +286,7 @@ exit(void)
   // Parent might be sleeping in wait().
   wakeup1(proc->parent);
 
+  if(!proc->type){
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->parent == proc){
@@ -274,6 +295,18 @@ exit(void)
         wakeup1(initproc);
     }
   }
+ }
+
+  if(proc->type && proc->threadattr){
+        proc->pgdir = 0;
+  }
+
+  if(proc->tcount){
+	release(&ptable.lock);
+//	cleanupzombiethreads();
+	acquire(&ptable.lock);
+  }
+
 
   // Jump into the scheduler, never to return.
   proc->state = ZOMBIE;
@@ -284,51 +317,64 @@ exit(void)
 
 // Wait for a child process to exit and return its pid.
 // Return -1 if this process has no children.
-int
-wait(uint tid)
-{
+int wait(uint tid) {
   struct proc *p;
-  int havekids, pid;
+  int havekids, pid, i;
 
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for zombie children.
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(((p->parent != proc) && !proc->type) || (proc->type && (p->parent != proc->parent))) {
-//	cprintf("Proc type: %d\n", proc->type);
+      if(((p->parent != proc) && !proc->type) || (proc->type && (p->parent != proc->parent))) 
         continue;
-	}
       
       if(tid)
 	if(tid != p->pid)
 	  continue;
      
       havekids = 1;
- 
+
       if(p->state == ZOMBIE){
         // Found one.
-        pid = p->pid;
-        kfree(p->kstack);
-        p->kstack = 0;
 
-	if(!p->type && (p->tcount == 0)){
+        pid = p->pid;
+
+	if(!p->type){
+	   cprintf("proc -> id: %d\n", proc->pid); 
+	   cprintf("proc: %p\n", proc); 
+	   cprintf("p->id: %d\n", p->pid); 
+	   cprintf("p: %p\n", p); 
            freevm(p->pgdir);
+	   p->pgdir = 0;
            p->state = UNUSED;
 	   p->pid = 0;
 	   p->parent = 0;
            p->name[0] = 0;
            p->killed = 0;
-	}
-	else {
-	   p->pgdir = 0;
-	   p->parent->tcount-=1;
+	   p->tcount = 0;
+	   p->wrapper = 0;
+	   p->ctflag = 0;
+	   p->ustack = 0;
+	   p->type = 0;
+	   p->threadattr = 0;
+	   p->threadretval = 0;
+	   p->chan = 0;
+	   kfree(p->kstack);
+           p->kstack = 0;
+
+		
+	   for(i=0;i<NMUTX;i++)
+	     p->mutexlist[i].lock.id = -1;
+
+	   for(i=0;i<NCONDVAR;i++)
+	     p->condvarlist[i].id = -1;
+
 	}
 
         release(&ptable.lock);
         return pid;
       }
-
     }
 
     // No point waiting if we don't have any children.
@@ -592,17 +638,41 @@ int getthreadretval(int tid){
 
 	int retval = -1;
 	struct proc *p;
+	int i;
 
 	acquire(&ptable.lock);
 	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       		if(p->type && (p->pid == tid)){
 			retval = p->threadretval;
-			p->state = UNUSED;
-           		p->pid = 0;
-           		p->parent = 0;
-           		p->name[0] = 0;
-           		p->killed = 0;
-			p->type = 0;
+			if(p->threadattr){
+				p->threadattr = 0;
+				p->threadretval = 0;
+				break;
+			}
+
+	                p->parent->tcount-=1;
+	                p->pgdir = 0;
+	                p->state = UNUSED;
+	                p->pid = 0;
+	                p->parent = 0;
+	                p->name[0] = 0;
+	                p->killed = 0;
+	                p->wrapper = 0;
+	                p->ctflag = 0;
+	                p->ustack = 0;
+	                p->type = 0;
+	                p->threadattr = 0;
+	                p->threadretval = 0;
+	                p->chan = 0;
+		        kfree(p->kstack);
+		        p->kstack = 0;
+
+	                for(i=0;i<NMUTX;i++)
+	        	     (p->mutexlist[i]).lock.id = -1;
+
+	                for(i=0;i<NCONDVAR;i++)
+		             (p->condvarlist[i]).id = -1;
+
 			break;
 		}		
 	}

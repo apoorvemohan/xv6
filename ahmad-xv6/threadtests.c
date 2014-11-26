@@ -217,7 +217,6 @@ void *f41(void* val)
     char *data = "1234567890";
     sleep(1);
     write(a_pipe[1], data, 10);
-    printf(1, "Thread %d created\n", *t2);
     qthread_join(t2, &val);
     printf(stdout, "f41 done\n");
     close(a_pipe[1]);
@@ -244,8 +243,6 @@ void test4(void)
     pipe(a_pipe);
     qthread_create(&t1, NULL, f41, NULL);
     qthread_create(&t2, NULL, f42, NULL);
-
-    printf(1, "Thread %d created\n", *t1);
 
     sleep(5);
     qthread_join(t1, &val);
@@ -336,7 +333,7 @@ int main(int argc, char **argv)
     /* test 5 - exit
      * create 10 threads, have them each sleep, then call exit
      */
-//    test5();
+    test5();
     
     exit();
     return 0;

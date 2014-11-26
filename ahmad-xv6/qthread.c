@@ -7,8 +7,8 @@
 void wrapper(qthread_func_ptr_t func, void *arg) {
 
     void *ptr = func(arg);
-    kthread_saveretval((int)ptr);
-    exit();
+    kthread_exit((int)ptr);
+    //exit();
 }
 
 int qthread_create(qthread_t *thread,qthread_attr_t *attr, qthread_func_ptr_t my_func, void *arg) {
