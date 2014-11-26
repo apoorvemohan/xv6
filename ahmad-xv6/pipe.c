@@ -49,9 +49,9 @@ pipealloc(struct file **f0, struct file **f1)
   if(p)
     kfree((char*)p);
   if(*f0)
-    fileclose(*f0);
+    fileclose(*f0, 0);
   if(*f1)
-    fileclose(*f1);
+    fileclose(*f1, 0);
   return -1;
 }
 

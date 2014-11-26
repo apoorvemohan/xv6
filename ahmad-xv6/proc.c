@@ -204,15 +204,15 @@ if(proc->ctflag){
 
   for(i = 0; i < NOFILE; i++)
     if(proc->ofile[i]){
-//	if(proc->ctflag)
-//		np->ofile[i] = proc->ofile[i];
-//	else
+	if(proc->ctflag)
+		np->ofile[i] = proc->ofile[i];
+	else
 		np->ofile[i] = filedup(proc->ofile[i]);
   }
 
-//  if(proc->ctflag)
-//	np->cwd = proc->cwd;
-  //else
+  if(proc->ctflag)
+	np->cwd = proc->cwd;
+  else
   	np->cwd = idup(proc->cwd);
 
   safestrcpy(np->name, proc->name, sizeof(proc->name));
@@ -241,17 +241,24 @@ exit(void)
   if(proc == initproc)
     panic("init exiting");
 
+  if(!proc->type)
+	cprintf("proc->id : %d\n", proc->pid);
+
   // Close all open files.
   for(fd = 0; fd < NOFILE; fd++){
     if(proc->ofile[fd]){
-      fileclose(proc->ofile[fd]);
+      if(!proc->type){
+        fileclose(proc->ofile[fd], 1);
+	}
       proc->ofile[fd] = 0;
     }
   }
 
+  if(!proc->type){
   begin_op();
   iput(proc->cwd);
   end_op();
+}
   proc->cwd = 0;
 
   acquire(&ptable.lock);

@@ -97,7 +97,7 @@ sys_close(void)
   if(argfd(0, &fd, &f) < 0)
     return -1;
   proc->ofile[fd] = 0;
-  fileclose(f);
+  fileclose(f, 0);
   return 0;
 }
 
@@ -315,7 +315,7 @@ sys_open(void)
 
   if((f = filealloc()) == 0 || (fd = fdalloc(f)) < 0){
     if(f)
-      fileclose(f);
+      fileclose(f, 0);
     iunlockput(ip);
     end_op();
     return -1;
@@ -433,8 +433,8 @@ sys_pipe(void)
   if((fd0 = fdalloc(rf)) < 0 || (fd1 = fdalloc(wf)) < 0){
     if(fd0 >= 0)
       proc->ofile[fd0] = 0;
-    fileclose(rf);
-    fileclose(wf);
+    fileclose(rf, 0);
+    fileclose(wf, 0);
     return -1;
   }
   fd[0] = fd0;

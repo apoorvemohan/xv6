@@ -53,17 +53,24 @@ filedup(struct file *f)
 
 // Close file f.  (Decrement ref count, close when reaches 0.)
 void
-fileclose(struct file *f)
+fileclose(struct file *f, int true)
 {
   struct file ff;
 
   acquire(&ftable.lock);
-  if(f->ref < 1)
+
+  if(true && (f->ref == 0)){
+	release(&ftable.lock);
+	return;
+  }
+
+  if((f->ref < 1))
     panic("fileclose");
-  if(--f->ref > 0){
+  if((--f->ref > 0)){
     release(&ftable.lock);
     return;
   }
+
   ff = *f;
   f->ref = 0;
   f->type = FD_NONE;
@@ -75,7 +82,7 @@ fileclose(struct file *f)
     begin_op();
     iput(ff.ip);
     end_op();
-  }
+ }
 }
 
 // Get metadata about file f.
@@ -113,8 +120,7 @@ fileread(struct file *f, char *addr, int n)
 
 //PAGEBREAK!
 // Write to file f.
-int
-filewrite(struct file *f, char *addr, int n)
+int filewrite(struct file *f, char *addr, int n)
 {
   int r;
 
@@ -153,4 +159,3 @@ filewrite(struct file *f, char *addr, int n)
   }
   panic("filewrite");
 }
-
