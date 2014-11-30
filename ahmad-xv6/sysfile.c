@@ -97,6 +97,8 @@ sys_close(void)
   if(argfd(0, &fd, &f) < 0)
     return -1;
   proc->ofile[fd] = 0;
+  if(proc->type == 1)
+	proc->parent->ofile[fd] = 0;
   fileclose(f, 0);
   return 0;
 }

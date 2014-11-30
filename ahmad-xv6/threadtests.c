@@ -263,7 +263,7 @@ void *f5(void *arg) {
         sleep(10);
         exit();
     }
-    sleep(10*100);
+    sleep(100);
     return 0;
 }
 void test5(void)
@@ -277,6 +277,7 @@ void test5(void)
         sleep(100);
         exit();
     }
+
     wait();
     printf(stdout, "Test 5a OK\n");
 
@@ -284,6 +285,7 @@ void test5(void)
         for (i = 0; i < 10; i++)
             qthread_create(&t[i], &detached, f5, (void*)i);
         sleep(100);
+
         exit();
     }
     wait();
@@ -292,7 +294,7 @@ void test5(void)
     if (fork() == 0) {
         for (i = 0; i < 10; i++)
             qthread_create(&t[i], NULL, f5, (void*)(i == 5));
-        sleep(100000000);
+        sleep(1000);
     }
     wait();
     printf(stdout, "Test 5c OK\n");

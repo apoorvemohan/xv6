@@ -158,6 +158,7 @@ fork(char *ustack, uint thrdattr, uint wrapperaddr, uint arg1, uint arg2)
     	}
 
     	np->type = 0;
+	np->tcount = 0;
   }
 
   for(i=0;i<NMUTX;i++){
@@ -232,24 +233,51 @@ if(proc->ctflag){
 
 void cleanupzombiethreads(){
 
+//	cprintf("tcount: %d\n", proc->tcount);	
+//	cprintf("proc: %p\n", proc);
+//	cprintf("proc pid: %d\n", proc->pid);
         struct proc *p;
+	int i;
 
         acquire(&ptable.lock);
         for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
 
-                if(p->type && (p->state == ZOMBIE)){
+                if(p->type && (p->state == ZOMBIE) && (p->parent == proc)){
 
-			release(&ptable.lock);
-			int val = wait(p->pid);
-			if(val != -1)
-				getthreadretval(val);
-			acquire(&ptable.lock);
+		 	p->parent->tcount-=1;
+                        p->state = UNUSED;
+                        p->pid = 0;
+                        p->parent = 0;
+                        p->name[0] = 0;
+                        p->killed = 0;
+                        p->wrapper = 0;
+                        p->ctflag = 0;
+                        p->ustack = 0;
+                        p->type = 0;
+                        p->threadattr = 0;
+                        p->threadretval = 0;
+                        p->chan = 0;
+                        kfree(p->kstack);
+                        p->kstack = 0;
+
+                        for(i=0;i<NMUTX;i++)
+                             (p->mutexlist[i]).lock.id = -1;
+
+                        for(i=0;i<NCONDVAR;i++)
+                             (p->condvarlist[i]).id = -1;
+
+                        break;
+
+	//		release(&ptable.lock);
+	//		int val = wait(p->pid);
+	//		if(val != -1)
+	//			getthreadretval(val);
+	//		acquire(&ptable.lock);
                 }
         }
 
         release(&ptable.lock);
 }
-
 
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
@@ -283,13 +311,13 @@ exit(void)
 
   acquire(&ptable.lock);
 
-  // Parent might be sleeping in wait().
-  wakeup1(proc->parent);
+//  // Parent might be sleeping in wait().
+  //wakeup1(proc->parent);
 
-  if(!proc->type){
+  if(proc->type == 0){
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    if(p->parent == proc){
+    if((p->type != 1) && (p->parent == proc)){
       p->parent = initproc;
       if(p->state == ZOMBIE)
         wakeup1(initproc);
@@ -301,12 +329,17 @@ exit(void)
         proc->pgdir = 0;
   }
 
-  if(proc->tcount){
+  while(proc->tcount != 0){
+//	cprintf("tcount: %d\n", proc->tcount);
 	release(&ptable.lock);
-//	cleanupzombiethreads();
+	cleanupzombiethreads();
+	yield();
 	acquire(&ptable.lock);
+
   }
 
+  // Parent might be sleeping in wait().
+  wakeup1(proc->parent);
 
   // Jump into the scheduler, never to return.
   proc->state = ZOMBIE;
@@ -341,10 +374,6 @@ int wait(uint tid) {
         pid = p->pid;
 
 	if(!p->type){
-	   cprintf("proc -> id: %d\n", proc->pid); 
-	   cprintf("proc: %p\n", proc); 
-	   cprintf("p->id: %d\n", p->pid); 
-	   cprintf("p: %p\n", p); 
            freevm(p->pgdir);
 	   p->pgdir = 0;
            p->state = UNUSED;
@@ -644,7 +673,7 @@ int getthreadretval(int tid){
 	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       		if(p->type && (p->pid == tid)){
 			retval = p->threadretval;
-			if(p->threadattr){
+			if(p->threadattr > 0){
 				p->threadattr = 0;
 				p->threadretval = 0;
 				break;
